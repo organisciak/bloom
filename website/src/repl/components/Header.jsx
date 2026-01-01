@@ -95,11 +95,11 @@ export function Header({ context, embedded = false }) {
           </button>
           {!isEmbedded && (
             <button
-              title="random favorite"
+              title="random (favorites first)"
               className="hover:opacity-50 p-2 flex items-center space-x-1"
               onClick={handleShuffle}
             >
-              <span>random fav</span>
+              <span>random</span>
             </button>
           )}
           {!isEmbedded && (

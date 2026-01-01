@@ -1,4 +1,5 @@
 import jsdoc from '../../doc.json';
+import hydraDocs from '../../hydra-docs.json';
 import { autocompletion } from '@codemirror/autocomplete';
 import { h } from './html';
 //TODO: fix tonal scale import
@@ -164,6 +165,22 @@ const jsdocCompletions = (() => {
   }
   return completions;
 })();
+
+const hydraCompletions = (() => {
+  const completions = [];
+  for (const doc of hydraDocs.docs || []) {
+    if (!doc?.name || doc.name.startsWith('_')) continue;
+    completions.push({
+      label: doc.name,
+      detail: 'Hydra',
+      info: () => Autocomplete(doc),
+      type: 'function',
+    });
+  }
+  return completions;
+})();
+
+const allCompletions = [...jsdocCompletions, ...hydraCompletions];
 
 // --- Handler functions for each context ---
 const pitchNames = [
@@ -434,7 +451,7 @@ function fallbackHandler(context) {
   if (word) {
     return {
       from: word.from,
-      options: jsdocCompletions,
+      options: allCompletions,
     };
   }
   return null;

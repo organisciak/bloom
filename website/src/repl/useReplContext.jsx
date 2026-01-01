@@ -27,6 +27,7 @@ import {
   setLatestCode,
   createPatternID,
   userPattern,
+  getActivePattern,
   getFavoritePatterns,
   getViewingPatternData,
   setViewingPatternData,
@@ -162,6 +163,9 @@ export function useReplContext() {
   const { started, isDirty, error, activeCode, pending } = replState;
   const editorRef = useRef();
   const containerRef = useRef();
+  const lastRandomIdRef = useRef(null);
+  const fileHandleRef = useRef(null);
+  const workspaceHandleRef = useRef(null);
 
   // this can be simplified once SettingsTab has been refactored to change codemirrorSettings directly!
   // this will be the case when the main repl is being replaced
@@ -183,6 +187,139 @@ export function useReplContext() {
   const setDocumentTitle = (code) => {
     const meta = getMetadata(code);
     document.title = (meta.title ? `${meta.title} - ` : '') + 'Strudel REPL';
+  };
+
+  const isFileSystemAccessSupported = () =>
+    typeof window !== 'undefined' &&
+    typeof window.showOpenFilePicker === 'function' &&
+    typeof window.showSaveFilePicker === 'function';
+
+  const isWorkspacePickerSupported = () =>
+    typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function';
+
+  const filePickerTypes = [
+    {
+      description: 'Strudel code',
+      accept: {
+        'text/plain': ['.strudel', '.js', '.txt', '.md'],
+      },
+    },
+  ];
+
+  const sanitizeFileName = (value) => {
+    return value
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80);
+  };
+
+  const getSuggestedFilename = (code) => {
+    const meta = getMetadata(code);
+    const base = sanitizeFileName(meta.title || 'strudel');
+    return `${base || 'strudel'}.strudel`;
+  };
+
+  const getCurrentCode = () => {
+    if (editorRef.current?.code != null) {
+      return editorRef.current.code;
+    }
+    return editorRef.current?.editor?.state?.doc?.toString?.() ?? '';
+  };
+
+  const writeFileHandle = async (handle, code) => {
+    const writable = await handle.createWritable();
+    await writable.write(code);
+    await writable.close();
+  };
+
+  const handleOpenFile = async () => {
+    if (!isFileSystemAccessSupported()) {
+      logger('[fs] File System Access API not supported in this browser.', 'highlight');
+      return;
+    }
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        types: filePickerTypes,
+        multiple: false,
+        startIn: workspaceHandleRef.current ?? 'documents',
+      });
+      if (!handle) return;
+      const file = await handle.getFile();
+      const text = await file.text();
+      fileHandleRef.current = handle;
+      const nextPattern = {
+        id: createPatternID(),
+        code: text,
+        collection: userPattern.collection,
+        created_at: Date.now(),
+        fileName: handle.name,
+      };
+      setViewingPatternData(nextPattern);
+      editorRef.current?.setCode(text);
+      setDocumentTitle(text);
+      logger(`[fs] opened ${handle.name}`, 'highlight');
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      logger(`[fs] open failed: ${error?.message || 'unknown error'}`, 'highlight');
+    }
+  };
+
+  const handleSaveFileAs = async () => {
+    if (!isFileSystemAccessSupported()) {
+      logger('[fs] File System Access API not supported in this browser.', 'highlight');
+      return;
+    }
+    const code = getCurrentCode();
+    try {
+      const handle = await window.showSaveFilePicker({
+        types: filePickerTypes,
+        suggestedName: getSuggestedFilename(code),
+        startIn: workspaceHandleRef.current ?? 'documents',
+      });
+      if (!handle) return;
+      await writeFileHandle(handle, code);
+      fileHandleRef.current = handle;
+      logger(`[fs] saved ${handle.name}`, 'highlight');
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      logger(`[fs] save failed: ${error?.message || 'unknown error'}`, 'highlight');
+    }
+  };
+
+  const handleSaveFile = async () => {
+    if (!isFileSystemAccessSupported()) {
+      logger('[fs] File System Access API not supported in this browser.', 'highlight');
+      return;
+    }
+    const code = getCurrentCode();
+    if (!fileHandleRef.current) {
+      await handleSaveFileAs();
+      return;
+    }
+    try {
+      await writeFileHandle(fileHandleRef.current, code);
+      logger(`[fs] saved ${fileHandleRef.current.name}`, 'highlight');
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      logger(`[fs] save failed: ${error?.message || 'unknown error'}`, 'highlight');
+    }
+  };
+
+  const handleOpenWorkspace = async () => {
+    if (!isWorkspacePickerSupported()) {
+      logger('[fs] Workspace picker not supported in this browser.', 'highlight');
+      return;
+    }
+    try {
+      const handle = await window.showDirectoryPicker();
+      if (!handle) return;
+      workspaceHandleRef.current = handle;
+      logger(`[fs] workspace set to ${handle.name}`, 'highlight');
+    } catch (error) {
+      if (error?.name === 'AbortError') return;
+      logger(`[fs] workspace failed: ${error?.message || 'unknown error'}`, 'highlight');
+    }
   };
 
   const handleTogglePlay = async () => {
@@ -238,13 +375,25 @@ export function useReplContext() {
   };
   const handleShuffle = async () => {
     const favorites = getFavoritePatterns();
-    if (!favorites.length) {
-      logger('[repl] ☆ add favorites in the Patterns tab to use random', 'highlight');
+    const allPatterns = Object.values(userPattern.getAll());
+    let candidates = favorites.length ? favorites : allPatterns;
+    if (!candidates.length) {
+      logger('[repl] ☆ add patterns or favorites in the Patterns tab to use random', 'highlight');
       return;
     }
-    const patternData = favorites[Math.floor(Math.random() * favorites.length)];
+    const viewingPatternId = getViewingPatternData()?.id;
+    const avoid = new Set([viewingPatternId, lastRandomIdRef.current].filter(Boolean));
+    if (candidates.length > 1 && avoid.size) {
+      const filtered = candidates.filter((pattern) => !avoid.has(pattern.id));
+      if (filtered.length) {
+        candidates = filtered;
+      }
+    }
+    const patternData = candidates[Math.floor(Math.random() * candidates.length)];
+    lastRandomIdRef.current = patternData.id;
     const code = patternData.code;
-    logger(`[repl] ✨ loading favorite "${patternData.id}"`, 'highlight');
+    const label = favorites.length ? 'favorite' : 'pattern';
+    logger(`[repl] ✨ loading random ${label} "${patternData.id}"`, 'highlight');
     setActivePattern(patternData.id);
     setViewingPatternData(patternData);
     await resetEditor();
@@ -270,6 +419,10 @@ export function useReplContext() {
     handleShare,
     handleEvaluate,
     handleExport,
+    handleOpenFile,
+    handleSaveFile,
+    handleSaveFileAs,
+    handleOpenWorkspace,
     init,
     error,
     editorRef,
