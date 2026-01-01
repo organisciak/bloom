@@ -269,7 +269,7 @@ export function SettingsTab({ started }) {
           value={isAutoCompletionEnabled}
         />
         <Checkbox
-          label="Enable tooltips on Ctrl and hover"
+          label="Enable hover reference"
           onChange={(cbEvent) => settingsMap.setKey('isTooltipEnabled', cbEvent.target.checked)}
           value={isTooltipEnabled}
         />
