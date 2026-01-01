@@ -4,6 +4,7 @@ import {
   loadAndSetFeaturedPatterns,
   loadAndSetPublicPatterns,
   patternFilterName,
+  togglePatternFavorite,
   useActivePattern,
   useViewingPatternData,
   userPattern,
@@ -36,22 +37,36 @@ export function PatternLabel({ pattern } /* : { pattern: Tables<'code'> } */) {
   return <>{`${pattern.id}: ${title} by ${author.slice(0, 100)}`.slice(0, 60)}</>;
 }
 
-function PatternButton({ showOutline, onClick, pattern, showHiglight }) {
+function PatternButton({ showOutline, onClick, pattern, showHiglight, onToggleFavorite }) {
+  const favoriteLabel = pattern.favorite ? '[*]' : '[ ]';
   return (
-    <a
+    <div
       className={cx(
-        'mr-4 hover:opacity-50 cursor-pointer block',
+        'mr-4 flex items-center justify-between gap-2',
         showOutline && 'outline outline-1',
         showHiglight && 'bg-selection',
       )}
-      onClick={onClick}
     >
-      <PatternLabel pattern={pattern} />
-    </a>
+      <button className="flex-1 text-left hover:opacity-50 cursor-pointer" onClick={onClick}>
+        <PatternLabel pattern={pattern} />
+      </button>
+      {onToggleFavorite && (
+        <button
+          className={cx('text-xs px-1 rounded hover:opacity-70', pattern.favorite && 'bg-lineHighlight')}
+          title="Toggle favorite"
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleFavorite();
+          }}
+        >
+          {favoriteLabel}
+        </button>
+      )}
+    </div>
   );
 }
 
-function PatternButtons({ patterns, activePattern, onClick, started }) {
+function PatternButtons({ patterns, activePattern, onClick, started, onToggleFavorite }) {
   const viewingPatternStore = useViewingPatternData();
   const viewingPatternData = parseJSON(viewingPatternStore);
   const viewingPatternID = viewingPatternData.id;
@@ -68,6 +83,7 @@ function PatternButtons({ patterns, activePattern, onClick, started }) {
               showHiglight={id === viewingPatternID}
               showOutline={id === activePattern && started}
               onClick={() => onClick(id)}
+              onToggleFavorite={onToggleFavorite ? () => onToggleFavorite(id) : undefined}
             />
           );
         })}
@@ -144,6 +160,7 @@ function UserPatterns({ context }) {
           started={context.started}
           activePattern={activePattern}
           viewingPatternID={viewingPatternID}
+          onToggleFavorite={(id) => togglePatternFavorite(id)}
         />
         {/* )} */}
       </div>

@@ -27,6 +27,7 @@ import {
   setLatestCode,
   createPatternID,
   userPattern,
+  getFavoritePatterns,
   getViewingPatternData,
   setViewingPatternData,
 } from '../user_pattern_utils.mjs';
@@ -34,7 +35,7 @@ import { superdirtOutput } from '@strudel/osc/superdirtoutput';
 import { audioEngineTargets } from '../settings.mjs';
 import { useStore } from '@nanostores/react';
 import { prebake } from './prebake.mjs';
-import { getRandomTune, initCode, loadModules, shareCode } from './util.mjs';
+import { initCode, loadModules, shareCode } from './util.mjs';
 import './Repl.css';
 import { setInterval, clearInterval } from 'worker-timers';
 import { getMetadata } from '../metadata_parser';
@@ -236,14 +237,19 @@ export function useReplContext() {
     });
   };
   const handleShuffle = async () => {
-    const patternData = await getRandomTune();
+    const favorites = getFavoritePatterns();
+    if (!favorites.length) {
+      logger('[repl] ☆ add favorites in the Patterns tab to use random', 'highlight');
+      return;
+    }
+    const patternData = favorites[Math.floor(Math.random() * favorites.length)];
     const code = patternData.code;
-    logger(`[repl] ✨ loading random tune "${patternData.id}"`);
+    logger(`[repl] ✨ loading favorite "${patternData.id}"`, 'highlight');
     setActivePattern(patternData.id);
     setViewingPatternData(patternData);
     await resetEditor();
     editorRef.current.setCode(code);
-    editorRef.current.repl.evaluate(code);
+    editorRef.current.evaluate();
   };
 
   const handleShare = async () => {

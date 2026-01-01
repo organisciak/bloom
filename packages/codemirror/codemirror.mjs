@@ -56,7 +56,7 @@ export const defaultSettings = {
   isBracketClosingEnabled: true,
   isLineNumbersDisplayed: true,
   isActiveLineHighlighted: false,
-  isAutoCompletionEnabled: false,
+  isAutoCompletionEnabled: true,
   isPatternHighlightingEnabled: true,
   isFlashEnabled: true,
   isTooltipEnabled: false,

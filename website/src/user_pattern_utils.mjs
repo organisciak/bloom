@@ -132,7 +132,7 @@ export const userPattern = {
   create() {
     const newID = createPatternID();
     const code = defaultCode;
-    const data = { code, created_at: Date.now(), id: newID, collection: this.collection };
+    const data = { code, created_at: Date.now(), id: newID, collection: this.collection, favorite: false };
     return { id: newID, data };
   },
   createAndAddToDB() {
@@ -179,6 +179,23 @@ export const userPattern = {
     }
     return { id: viewingID, data: userPatterns[viewingID] };
   },
+};
+
+export const togglePatternFavorite = (id, forceValue) => {
+  const userPatterns = userPattern.getAll();
+  const pattern = userPatterns[id];
+  if (!pattern) {
+    return null;
+  }
+  const favorite = forceValue ?? !pattern.favorite;
+  const updated = { ...pattern, favorite };
+  setUserPatterns({ ...userPatterns, [id]: updated });
+  return updated;
+};
+
+export const getFavoritePatterns = () => {
+  const userPatterns = userPattern.getAll();
+  return Object.values(userPatterns).filter((pattern) => pattern.favorite);
 };
 
 function setUserPatterns(obj) {
