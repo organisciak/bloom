@@ -24,9 +24,11 @@ After cloning the project, you can run the REPL locally:
    pnpm dev
    ```
 
-Optional local AI edits (Claude):
-- Set `ANTHROPIC_API_KEY` in your environment to enable the inline Claude edit prompt.
+Optional local AI features (Claude/OpenAI):
+- Set `ANTHROPIC_API_KEY` to enable Claude inline edits and AI composition generation.
+- Set `OPENAI_API_KEY` to enable OpenAI composition generation.
 - Optional: `ANTHROPIC_MODEL` (defaults to `claude-3-5-sonnet-20240620`) and `ANTHROPIC_MAX_TOKENS` (defaults to 2048).
+- Optional: `OPENAI_MODEL` (defaults to `gpt-4o-mini`) and `OPENAI_MAX_TOKENS` (defaults to 2048).
 
 ## Using Strudel In Your Project
 

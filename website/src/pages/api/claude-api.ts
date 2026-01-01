@@ -1,17 +1,34 @@
 import type { APIRoute } from 'astro';
+import { buildHydraContextBlock, buildSoundContextBlock } from '../../repl/ai_prompt.mjs';
+
+export const prerender = false;
 
 const DEFAULT_MODEL = 'claude-3-5-sonnet-20240620';
 const DEFAULT_MAX_TOKENS = 2048;
 
-const buildUserPrompt = ({ code, prompt, selection }: { code: string; prompt: string; selection?: string }) => {
+const buildUserPrompt = ({
+  code,
+  prompt,
+  selection,
+  soundContext,
+}: {
+  code: string;
+  prompt: string;
+  selection?: string;
+  soundContext?: { synths?: string[]; drumMachines?: string[] };
+}) => {
   const selectionBlock = selection?.trim()
     ? `\n\nSelected section (if relevant):\n${selection}\n`
     : '\n\nSelected section: (none)\n';
+  const soundContextBlock = buildSoundContextBlock(soundContext);
+  const hydraContextBlock = buildHydraContextBlock();
   return [
     'You are editing a Strudel live-coding composition.',
     'Apply the user request by changing only the relevant part of the code.',
     'Keep everything else identical, including formatting and comments.',
     'Return ONLY the full updated code, without markdown or commentary.',
+    ...(soundContextBlock ? ['', 'Available instruments (use exact names in s(...)):', soundContextBlock] : []),
+    ...(hydraContextBlock ? ['', 'Hydra usage (brief):', hydraContextBlock] : []),
     '',
     'Full composition:',
     code,
@@ -23,7 +40,12 @@ const buildUserPrompt = ({ code, prompt, selection }: { code: string; prompt: st
 };
 
 export const POST: APIRoute = async ({ request }) => {
-  let payload: { code?: string; prompt?: string; selection?: string } = {};
+  let payload: {
+    code?: string;
+    prompt?: string;
+    selection?: string;
+    soundContext?: { synths?: string[]; drumMachines?: string[] };
+  } = {};
   try {
     payload = await request.json();
   } catch (error) {
@@ -36,6 +58,7 @@ export const POST: APIRoute = async ({ request }) => {
   const code = typeof payload.code === 'string' ? payload.code : '';
   const prompt = typeof payload.prompt === 'string' ? payload.prompt.trim() : '';
   const selection = typeof payload.selection === 'string' ? payload.selection : '';
+  const soundContext = payload.soundContext;
   if (!code || !prompt) {
     return new Response(JSON.stringify({ error: 'Missing code or prompt.' }), {
       status: 400,
@@ -65,7 +88,7 @@ export const POST: APIRoute = async ({ request }) => {
         content: [
           {
             type: 'text',
-            text: buildUserPrompt({ code, prompt, selection }),
+            text: buildUserPrompt({ code, prompt, selection, soundContext }),
           },
         ],
       },

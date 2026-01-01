@@ -1,18 +1,36 @@
 import { EditorView, ViewPlugin, keymap, showTooltip } from '@codemirror/view';
 import { Prec, StateEffect, StateField } from '@codemirror/state';
 import { logger } from '@strudel/core';
+import { buildClaudePrompt, getCommandByMode, matchInlineCommand } from './claude_commands.mjs';
 
-const CLAUDE_COMMAND_REGEX = /\\(ai|claude)$/;
-const CLAUDE_COMMAND_MAX_LEN = '\\claude'.length;
+const getBaseUrl = () => {
+  if (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) {
+    const base = import.meta.env.BASE_URL;
+    return base.endsWith('/') ? base : `${base}/`;
+  }
+  return '/';
+};
+
+const buildApiUrl = (path) => {
+  if (path.startsWith('http')) return path;
+  const base = getBaseUrl();
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  return `${base}${cleanPath}`;
+};
+
+const getSoundContext = () => {
+  if (typeof window === 'undefined') return undefined;
+  return window.__strudelSoundContext;
+};
 
 const openClaudePrompt = StateEffect.define();
 const closeClaudePrompt = StateEffect.define();
 
 const hasPrompt = (state) => state.field(claudePromptField, false);
 
-const openPromptAt = (view, pos) => {
+const openPromptAt = (view, pos, mode = 'edit') => {
   const targetPos = pos ?? view.state.selection.main.head;
-  view.dispatch({ effects: openClaudePrompt.of({ pos: targetPos }) });
+  view.dispatch({ effects: openClaudePrompt.of({ pos: targetPos, mode }) });
   return true;
 };
 
@@ -24,30 +42,64 @@ const closePrompt = (view) => {
   return true;
 };
 
-const setBusyState = (input, submit, cancel, status, busy) => {
+const setBusyState = (input, submit, cancel, status, suggestionsList, busy) => {
   input.disabled = busy;
   submit.disabled = busy;
   cancel.disabled = busy;
+  if (suggestionsList) {
+    suggestionsList.querySelectorAll('button').forEach((button) => {
+      button.disabled = busy;
+    });
+  }
   if (busy) {
-    status.textContent = 'Claude is editing...';
+    status.textContent = '';
+    const dotsContainer = document.createElement('span');
+    dotsContainer.className = 'loading-dots';
+    for (let i = 0; i < 3; i++) {
+      const dot = document.createElement('span');
+      dot.className = 'dot';
+      dotsContainer.appendChild(dot);
+    }
+    status.appendChild(dotsContainer);
+    const text = document.createTextNode(' Refining code...');
+    status.appendChild(text);
   }
 };
 
-const createPromptDom = (view) => {
+const createPromptDom = (view, mode) => {
+  const command = getCommandByMode(mode);
   const dom = document.createElement('div');
   dom.className = 'claude-prompt';
 
   const header = document.createElement('div');
   header.className = 'claude-prompt-title';
-  header.textContent = 'Claude edit';
+  header.textContent = command.label;
 
   const input = document.createElement('input');
   input.className = 'claude-prompt-input';
   input.type = 'text';
-  input.placeholder = 'Describe the change you want (Enter to apply, Esc to close)';
+  input.placeholder = command.placeholder;
 
   const status = document.createElement('div');
   status.className = 'claude-prompt-status';
+
+  const suggestions = document.createElement('div');
+  suggestions.className = 'claude-prompt-suggestions';
+
+  const suggestionsTitle = document.createElement('div');
+  suggestionsTitle.className = 'claude-prompt-suggestions-title';
+  suggestionsTitle.textContent = 'Suggestions';
+
+  const suggestionsList = document.createElement('div');
+  suggestionsList.className = 'claude-prompt-suggestions-list';
+
+  const suggestionsStatus = document.createElement('div');
+  suggestionsStatus.className = 'claude-prompt-suggestions-status';
+  suggestionsStatus.textContent = 'Loading suggestions...';
+
+  suggestions.appendChild(suggestionsTitle);
+  suggestions.appendChild(suggestionsList);
+  suggestions.appendChild(suggestionsStatus);
 
   const actions = document.createElement('div');
   actions.className = 'claude-prompt-actions';
@@ -67,6 +119,7 @@ const createPromptDom = (view) => {
 
   dom.appendChild(header);
   dom.appendChild(input);
+  dom.appendChild(suggestions);
   dom.appendChild(status);
   dom.appendChild(actions);
 
@@ -75,26 +128,29 @@ const createPromptDom = (view) => {
     view.focus();
   };
 
-  const submitRequest = async () => {
-    const prompt = input.value.trim();
+  const submitRequest = async (overridePrompt) => {
+    const prompt = buildClaudePrompt(mode, overridePrompt ?? input.value);
     if (!prompt) {
       status.textContent = 'Enter a request first.';
       return;
     }
     status.textContent = '';
-    setBusyState(input, submit, cancel, status, true);
+    setBusyState(input, submit, cancel, status, suggestionsList, true);
 
     const { from, to } = view.state.selection.main;
     const selection = from !== to ? view.state.sliceDoc(from, to) : '';
     const code = view.state.doc.toString();
+    const soundContext = getSoundContext();
 
     try {
-      const response = await fetch('/api/claude', {
+      const response = await fetch(buildApiUrl('/api/claude-api'), {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ prompt, code, selection }),
+        body: JSON.stringify({ prompt, code, selection, soundContext }),
       });
+
       const data = await response.json();
+
       if (!response.ok) {
         throw new Error(data?.error || 'Claude request failed.');
       }
@@ -102,17 +158,67 @@ const createPromptDom = (view) => {
         throw new Error('Claude returned empty content.');
       }
       const nextCode = String(data.code);
+
       const length = view.state.doc.length;
       view.dispatch({
         changes: { from: 0, to: length, insert: nextCode },
       });
-      logger('[claude] applied edits', 'highlight');
+
+      logger('[edit] applied changes', 'highlight');
       closeAndFocus();
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Claude request failed.';
+      const message = error instanceof Error ? error.message : 'Request failed.';
+      status.textContent = '';
+      status.className = 'claude-prompt-status fade-in';
       status.textContent = message;
-      logger(`[claude] ${message}`, 'highlight');
-      setBusyState(input, submit, cancel, status, false);
+      logger(`[edit] ${message}`, 'highlight');
+      setBusyState(input, submit, cancel, status, suggestionsList, false);
+    }
+  };
+
+  const renderSuggestions = (items) => {
+    suggestionsList.innerHTML = '';
+    items.forEach((item) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'claude-prompt-suggestion';
+      const label = item.title?.trim() || item.prompt?.trim() || '';
+      button.textContent = label;
+      button.addEventListener('click', () => {
+        submitRequest(item.prompt);
+      });
+      suggestionsList.appendChild(button);
+    });
+  };
+
+  const loadSuggestions = async () => {
+    const { from, to } = view.state.selection.main;
+    const selection = from !== to ? view.state.sliceDoc(from, to) : '';
+    const code = view.state.doc.toString();
+    const soundContext = getSoundContext();
+
+    suggestionsStatus.textContent = 'Loading suggestions...';
+    suggestionsStatus.className = 'claude-prompt-suggestions-status';
+    try {
+      const response = await fetch(buildApiUrl('/api/claude-suggestions'), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ code, selection, soundContext }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || 'Suggestions unavailable.');
+      }
+      const items = Array.isArray(data?.suggestions) ? data.suggestions : [];
+      if (!items.length) {
+        suggestionsStatus.textContent = 'No suggestions yet.';
+        return;
+      }
+      suggestionsStatus.textContent = '';
+      renderSuggestions(items);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Suggestions unavailable.';
+      suggestionsStatus.textContent = message;
     }
   };
 
@@ -138,16 +244,23 @@ const createPromptDom = (view) => {
     input.focus();
   }, 0);
 
+  if (mode === 'edit') {
+    loadSuggestions();
+  } else {
+    suggestions.style.display = 'none';
+  }
+
   return dom;
 };
 
-const createTooltip = (pos) => ({
+const createTooltip = (pos, mode) => ({
   pos,
+  mode,
   above: true,
   strictSide: true,
   class: 'strudel-claude-tooltip',
   create(view) {
-    const dom = createPromptDom(view);
+    const dom = createPromptDom(view, mode);
     return { dom };
   },
 });
@@ -159,7 +272,7 @@ const claudePromptField = StateField.define({
   update(value, tr) {
     for (const effect of tr.effects) {
       if (effect.is(openClaudePrompt)) {
-        return createTooltip(effect.value.pos);
+        return createTooltip(effect.value.pos, effect.value.mode);
       }
       if (effect.is(closeClaudePrompt)) {
         return null;
@@ -183,13 +296,13 @@ const getCommandMatch = (state) => {
   }
   const line = state.doc.lineAt(head);
   const prefix = line.text.slice(0, head - line.from);
-  const tail = prefix.slice(-CLAUDE_COMMAND_MAX_LEN);
-  const match = tail.match(CLAUDE_COMMAND_REGEX);
-  if (!match) {
-    return null;
-  }
-  const command = match[0];
-  return { from: head - command.length, to: head };
+  const match = matchInlineCommand(prefix);
+  if (!match) return null;
+  return {
+    from: line.from + match.from,
+    to: line.from + match.to,
+    mode: match.mode,
+  };
 };
 
 const claudeCommandPlugin = ViewPlugin.fromClass(
@@ -215,11 +328,14 @@ const claudeCommandPlugin = ViewPlugin.fromClass(
         return;
       }
       this.ignoreNext = true;
-      update.view.dispatch({
-        changes: { from: command.from, to: command.to, insert: '' },
-        selection: { anchor: command.from },
-        effects: openClaudePrompt.of({ pos: command.from }),
-      });
+      // Schedule dispatch after current update cycle completes
+      setTimeout(() => {
+        update.view.dispatch({
+          changes: { from: command.from, to: command.to, insert: '' },
+          selection: { anchor: command.from },
+          effects: openClaudePrompt.of({ pos: command.from, mode: command.mode }),
+        });
+      }, 0);
     }
   },
 );
@@ -227,7 +343,7 @@ const claudeCommandPlugin = ViewPlugin.fromClass(
 const claudeKeymap = Prec.highest(
   keymap.of([
     {
-      key: 'Mod-\\',
+      key: 'Mod-/',
       preventDefault: true,
       run: (view) => openPromptAt(view),
     },
