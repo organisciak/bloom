@@ -10,8 +10,10 @@ import { WelcomeTab } from './WelcomeTab';
 import { PatternsTab } from './PatternsTab';
 import { ChevronLeftIcon, XMarkIcon } from '@heroicons/react/16/solid';
 import ExportTab from './ExportTab';
+import { WorkspaceTab } from './WorkspaceTab';
 
 const TAURI = typeof window !== 'undefined' && window.__TAURI__;
+const supportsWorkspace = typeof window !== 'undefined' && typeof window.showDirectoryPicker === 'function';
 
 export function HorizontalPanel({ context }) {
   const settings = useSettings();
@@ -80,6 +82,7 @@ const tabNames = {
   welcome: 'intro',
   patterns: 'patterns',
   sounds: 'sounds',
+  ...(supportsWorkspace ? { workspace: 'workspace' } : {}),
   reference: 'reference',
   export: 'export',
   console: 'console',
@@ -123,13 +126,15 @@ function PanelContent({ context, tab }) {
     case tabNames.patterns:
       return <PatternsTab context={context} />;
     case tabNames.console:
-      return <ConsoleTab />;
+      return <ConsoleTab context={context} />;
     case tabNames.sounds:
       return <SoundsTab />;
     case tabNames.reference:
       return <Reference />;
     case tabNames.export:
       return <ExportTab handleExport={context.handleExport} />;
+    case tabNames.workspace:
+      return <WorkspaceTab context={context} />;
     case tabNames.settings:
       return <SettingsTab started={context.started} />;
     case tabNames.files:
