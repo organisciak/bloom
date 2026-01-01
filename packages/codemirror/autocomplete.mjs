@@ -20,6 +20,12 @@ const stripHtml = (html) => {
   return div.textContent || div.innerText || '';
 };
 
+const POPULAR_SECTION = { name: 'Popular', rank: 0 };
+const ALL_SECTION = { name: 'All', rank: 1 };
+
+const POPULAR_BANK_HINTS = ['tr909', 'tr808', 'linn', 'linndrum', 'lm1', 'lm2', 'cr78', 'dmx'];
+const POPULAR_SOUND_HINTS = ['bd', 'sd', 'hh', 'oh', 'cp', 'rim', 'perc', 'kick', 'snare', 'clap'];
+
 const getDocLabel = (doc) => doc.name || doc.longname;
 
 const buildParamsList = (params) =>
@@ -80,6 +86,65 @@ const isValidDoc = (doc) => {
 
 const hasExcludedTags = (doc) =>
   ['superdirtOnly', 'noAutocomplete'].some((tag) => doc.tags?.find((t) => t.originalTitle === tag));
+
+const uniqueList = (items) => Array.from(new Set(items));
+
+const buildSectionedOptions = ({ labels, popularLabels, type }) => {
+  const popularSet = new Set(popularLabels);
+  const options = [];
+  popularLabels.forEach((label) => {
+    options.push({ label, type, section: POPULAR_SECTION });
+  });
+  labels.forEach((label) => {
+    if (!popularSet.has(label)) {
+      options.push({ label, type, section: ALL_SECTION });
+    }
+  });
+  return options;
+};
+
+const getPopularBanks = (banks) => {
+  const lowerBanks = banks.map((bank) => bank.toLowerCase());
+  const matches = [];
+  POPULAR_BANK_HINTS.forEach((hint) => {
+    const exactIndex = lowerBanks.indexOf(hint);
+    if (exactIndex !== -1) {
+      matches.push(banks[exactIndex]);
+      return;
+    }
+    const partialIndex = lowerBanks.findIndex((bank) => bank.includes(hint));
+    if (partialIndex !== -1) {
+      matches.push(banks[partialIndex]);
+    }
+  });
+  if (!matches.length) {
+    return banks.slice(0, 6);
+  }
+  return uniqueList(matches).slice(0, 6);
+};
+
+const pickSoundMatch = (soundNames, hint) => {
+  const exact = soundNames.find((name) => name.toLowerCase() === hint);
+  if (exact) return exact;
+  const suffix = `_${hint}`;
+  const match = soundNames.find((name) => name.toLowerCase().endsWith(suffix));
+  if (match) return match;
+  return null;
+};
+
+const getPopularSounds = (soundNames) => {
+  const matches = [];
+  POPULAR_SOUND_HINTS.forEach((hint) => {
+    const match = pickSoundMatch(soundNames, hint);
+    if (match) {
+      matches.push(match);
+    }
+  });
+  if (!matches.length) {
+    return soundNames.slice(0, 8);
+  }
+  return uniqueList(matches).slice(0, 8);
+};
 
 export function bankCompletions() {
   // TODO: FIX IMPORT
@@ -157,6 +222,7 @@ const jsdocCompletions = (() => {
         seen.add(label);
         completions.push({
           label,
+          detail: 'Strudel',
           info: () => Autocomplete(getSynonymDoc(doc, label)),
           type: 'function', // https://codemirror.net/docs/ref/#autocomplete.Completion.type
         });
@@ -291,7 +357,8 @@ function soundHandler(context) {
   const fragment = fragMatch ? fragMatch[1] : inside;
   const soundNames = Object.keys(soundMap?.get() ?? {}).sort();
   const filteredSounds = soundNames.filter((name) => name.includes(fragment));
-  let options = filteredSounds.map((name) => ({ label: name, type: 'sound' }));
+  const popularSounds = getPopularSounds(soundNames).filter((name) => name.includes(fragment));
+  let options = buildSectionedOptions({ labels: filteredSounds, popularLabels: popularSounds, type: 'sound' });
   const from = soundContext.to - fragment.length;
   return {
     from,
@@ -323,11 +390,13 @@ function bankHandler(context) {
   const inside = text.slice(quoteIdx + 1);
   const fragment = inside;
   let banks = bankCompletions();
-  const filteredBanks = banks.filter((b) => b.label.startsWith(fragment));
+  const filteredBanks = banks.filter((b) => b.label.startsWith(fragment)).map((b) => b.label);
+  const popularBanks = getPopularBanks(banks.map((b) => b.label)).filter((b) => b.startsWith(fragment));
+  const options = buildSectionedOptions({ labels: filteredBanks, popularLabels: popularBanks, type: 'bank' });
   const from = bankMatch.to - fragment.length;
   return {
     from,
-    options: filteredBanks,
+    options,
   };
 }
 
@@ -479,3 +548,9 @@ export const strudelAutocomplete = (context) => {
 
 export const isAutoCompletionEnabled = (enabled) =>
   enabled ? [autocompletion({ override: [strudelAutocomplete], closeOnBlur: false })] : [];
+
+export const __test__ = {
+  buildSectionedOptions,
+  getPopularBanks,
+  getPopularSounds,
+};

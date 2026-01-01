@@ -8,6 +8,7 @@ import { SoundsTab } from './SoundsTab';
 import { useLogger } from '../useLogger';
 import { WelcomeTab } from './WelcomeTab';
 import { PatternsTab } from './PatternsTab';
+import { ComposeTab } from './ComposeTab';
 import { ChevronLeftIcon, XMarkIcon } from '@heroicons/react/16/solid';
 import ExportTab from './ExportTab';
 import { WorkspaceTab } from './WorkspaceTab';
@@ -84,6 +85,7 @@ const tabNames = {
   sounds: 'sounds',
   ...(supportsWorkspace ? { workspace: 'workspace' } : {}),
   reference: 'reference',
+  ai: 'compose',
   export: 'export',
   console: 'console',
   settings: 'settings',
@@ -130,7 +132,9 @@ function PanelContent({ context, tab }) {
     case tabNames.sounds:
       return <SoundsTab />;
     case tabNames.reference:
-      return <Reference />;
+      return <Reference context={context} />;
+    case tabNames.ai:
+      return <ComposeTab context={context} />;
     case tabNames.export:
       return <ExportTab handleExport={context.handleExport} />;
     case tabNames.workspace:
