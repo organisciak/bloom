@@ -1,5 +1,6 @@
 ---
 import MoreMenu from '../RightSidebar/MoreMenu.astro';
+import SubjectiveNotes from '../SubjectiveNotes.astro';
 
 type Props = {
   githubEditUrl?: string;
@@ -12,6 +13,7 @@ const { githubEditUrl } = Astro.props as Props;
   <section class="main-section">
     <!-- TODO: add dropdown toc on mobile -->
     <div class="prose dark:prose-invert max-w-full pb-8">
+      <SubjectiveNotes />
       <slot />
     </div>
   </section>

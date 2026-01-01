@@ -1,6 +1,6 @@
 export const SITE = {
-  title: 'Strudel',
-  description: 'Strudel is a music live coding editor that brings TidalCycles to the browser.',
+  title: 'Strudel Bloom',
+  description: 'Strudel Bloom is a personal fork of Strudel for live-coded music in the browser.',
   defaultLanguage: 'en',
 };
 

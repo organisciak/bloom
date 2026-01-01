@@ -40,3 +40,19 @@
   font-size: 0.9em;
   opacity: 50%;
 }
+
+.fork-vibe {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 16px 0 24px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.fork-vibe h3 {
+  margin-top: 0;
+}
+
+.fork-vibe ul {
+  margin-bottom: 0;
+}
