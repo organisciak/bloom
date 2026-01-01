@@ -1,40 +1,27 @@
 import { hoverTooltip } from '@codemirror/view';
 import jsdoc from '../../doc.json';
+import hydraDocs from '../../hydra-docs.json';
 import { Autocomplete, getSynonymDoc } from './autocomplete.mjs';
 
 const getDocLabel = (doc) => doc.name || doc.longname;
 
-let ctrlDown = false;
+const findStrudelDoc = (word) => {
+  let entry = jsdoc.docs.filter((doc) => getDocLabel(doc) === word)[0];
+  if (entry) {
+    return entry;
+  }
+  const synonymDoc = jsdoc.docs.filter((doc) => doc.synonyms && doc.synonyms.includes(word))[0];
+  if (!synonymDoc) {
+    return null;
+  }
+  return getSynonymDoc(synonymDoc, word);
+};
 
-if (typeof window !== 'undefined') {
-  // Record Control key event to trigger or block the tooltip depending on the state
-  window.addEventListener(
-    'keyup',
-    function (e) {
-      if (e.key == 'Control') {
-        ctrlDown = false;
-      }
-    },
-    true,
-  );
-
-  window.addEventListener(
-    'keydown',
-    function (e) {
-      if (e.key == 'Control') {
-        ctrlDown = true;
-      }
-    },
-    true,
-  );
-}
+const findHydraDoc = (word) => hydraDocs.docs.find((doc) => doc.name === word) ?? null;
 
 export const strudelTooltip = hoverTooltip(
   (view, pos, side) => {
     // Word selection from CodeMirror Hover Tooltip example https://codemirror.net/examples/tooltip/#hover-tooltips
-    if (!ctrlDown) {
-      return null;
-    }
     let { from, to, text } = view.state.doc.lineAt(pos);
     let start = pos,
       end = pos;
@@ -48,15 +35,9 @@ export const strudelTooltip = hoverTooltip(
       return null;
     }
     let word = text.slice(start - from, end - from);
-    // Get entry from Strudel documentation
-    let entry = jsdoc.docs.filter((doc) => getDocLabel(doc) === word)[0];
+    const entry = findStrudelDoc(word) ?? findHydraDoc(word);
     if (!entry) {
-      // Try for synonyms
-      const doc = jsdoc.docs.filter((doc) => doc.synonyms && doc.synonyms.includes(word))[0];
-      if (!doc) {
-        return null;
-      }
-      entry = getSynonymDoc(doc, word);
+      return null;
     }
 
     return {

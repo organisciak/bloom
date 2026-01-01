@@ -25,7 +25,7 @@ export const defaultSettings = {
   isLineNumbersDisplayed: true,
   isActiveLineHighlighted: true,
   isAutoCompletionEnabled: true,
-  isTooltipEnabled: false,
+  isTooltipEnabled: true,
   isFlashEnabled: true,
   isSyncEnabled: false,
   isLineWrappingEnabled: false,

@@ -142,7 +142,8 @@ export const userPattern = {
 
   update(id, data) {
     const userPatterns = this.getAll();
-    data = { ...data, id, collection: this.collection };
+    const existing = userPatterns[id] ?? {};
+    data = { ...existing, ...data, id, collection: this.collection };
     setUserPatterns({ ...userPatterns, [id]: data });
     return { id, data };
   },

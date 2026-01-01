@@ -1,14 +1,20 @@
 import { useMemo, useState } from 'react';
 
 import jsdocJson from '../../../../../doc.json';
+import hydraDocs from '../../../../../hydra-docs.json';
 import { Textbox } from '../textbox/Textbox';
+import cx from '@src/cx.mjs';
 
 const isValid = ({ name, description }) => name && !name.startsWith('_') && !!description;
 
 const availableFunctions = (() => {
   const seen = new Set(); // avoid repetition
   const functions = [];
-  for (const doc of jsdocJson.docs) {
+  const combinedDocs = [
+    ...jsdocJson.docs.map((doc) => ({ ...doc, source: 'strudel' })),
+    ...hydraDocs.docs.map((doc) => ({ ...doc, source: 'hydra' })),
+  ];
+  for (const doc of combinedDocs) {
     if (!isValid(doc)) continue;
     functions.push(doc);
     const synonyms = doc.synonyms || [];
@@ -37,9 +43,13 @@ const getInnerText = (html) => {
 
 export function Reference() {
   const [search, setSearch] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('all');
 
   const visibleFunctions = useMemo(() => {
     return availableFunctions.filter((entry) => {
+      if (sourceFilter !== 'all' && entry.source !== sourceFilter) {
+        return false;
+      }
       if (!search) {
         return true;
       }
@@ -50,13 +60,27 @@ export function Reference() {
         (entry.synonyms?.some((s) => s.toLowerCase().includes(lowerCaseSearch)) ?? false)
       );
     });
-  }, [search]);
+  }, [search, sourceFilter]);
 
   return (
     <div className="flex h-full w-full p-2 overflow-hidden">
       <div className="h-full  flex flex-col gap-2 w-1/3 max-w-72 ">
         <div class="w-full flex">
           <Textbox className="w-full" placeholder="Search" value={search} onChange={setSearch} />
+        </div>
+        <div className="flex gap-1 text-xs">
+          {['all', 'strudel', 'hydra'].map((source) => (
+            <button
+              key={source}
+              className={cx(
+                'px-2 py-1 rounded capitalize',
+                sourceFilter === source ? 'bg-lineHighlight' : 'opacity-60 hover:opacity-100',
+              )}
+              onClick={() => setSourceFilter(source)}
+            >
+              {source}
+            </button>
+          ))}
         </div>
         <div className="flex flex-col h-full overflow-y-auto  gap-1.5 bg-background bg-opacity-50  rounded-md">
           {visibleFunctions.map((entry, i) => (
@@ -69,7 +93,8 @@ export function Reference() {
                 container.scrollTo(0, el.offsetTop);
               }}
             >
-              {entry.name} {/* <span className="text-gray-600">{entry.meta.filename}</span> */}
+              {entry.name}
+              {entry.source === 'hydra' && <span className="ml-2 text-xs opacity-60">Hydra</span>}
             </a>
           ))}
         </div>
@@ -86,7 +111,10 @@ export function Reference() {
           </p>
           {visibleFunctions.map((entry, i) => (
             <section key={i}>
-              <h3 id={`doc-${i}`}>{entry.name}</h3>
+              <h3 id={`doc-${i}`}>
+                {entry.name}
+                {entry.source === 'hydra' && <span className="ml-2 text-xs opacity-60">Hydra</span>}
+              </h3>
               {!!entry.synonyms_text && (
                 <p>
                   Synonyms: <code>{entry.synonyms_text}</code>

@@ -216,3 +216,74 @@
 
 .autocomplete-info-tooltip::-webkit-scrollbar-thumb:hover {
 }
+
+/* Claude inline prompt */
+.cm-tooltip.strudel-claude-tooltip {
+  padding: 0 !important;
+  border: 1px solid var(--foreground) !important;
+  border-radius: 6px !important;
+  background: var(--background) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35) !important;
+}
+
+.claude-prompt {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 280px;
+  max-width: 420px;
+  color: var(--foreground);
+  font-family: var(--font-family, 'SF Mono', 'Monaco', monospace);
+  font-size: 13px;
+}
+
+.claude-prompt-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.8;
+}
+
+.claude-prompt-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--foreground);
+  background: transparent;
+  color: var(--foreground);
+}
+
+.claude-prompt-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.claude-prompt-status {
+  min-height: 16px;
+  color: #f6b26b;
+}
+
+.claude-prompt-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.claude-prompt-button {
+  border: 1px solid var(--foreground);
+  border-radius: 4px;
+  padding: 4px 10px;
+  background: var(--foreground);
+  color: var(--background);
+  cursor: pointer;
+}
+
+.claude-prompt-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.claude-prompt-secondary {
+  background: transparent;
+  color: var(--foreground);
+}
