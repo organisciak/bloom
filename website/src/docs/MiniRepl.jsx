@@ -97,6 +97,7 @@ export function MiniRepl({
   const { started, isDirty, error } = replState;
   const editorRef = useRef();
   const containerRef = useRef();
+  const lastTuneRef = useRef(tune);
   const client = useClient();
 
   const [tuneIndex, setTuneIndex] = useState(0);
@@ -106,6 +107,23 @@ export function MiniRepl({
     editorRef.current?.setCode(tunes[index]);
     editorRef.current?.evaluate();
   };
+
+  useEffect(() => {
+    if (tunes) {
+      return;
+    }
+    if (!editorRef.current || typeof tune !== 'string') {
+      return;
+    }
+    if (lastTuneRef.current === tune) {
+      return;
+    }
+    lastTuneRef.current = tune;
+    editorRef.current.setCode(tune);
+    if (started) {
+      editorRef.current.evaluate();
+    }
+  }, [tune, tunes, started]);
 
   if (!client) {
     return <pre>{code}</pre>;
