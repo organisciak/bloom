@@ -24,6 +24,7 @@ import { sliderPlugin, updateSliderWidgets } from './slider.mjs';
 import { activateTheme, initTheme, theme } from './themes.mjs';
 import { isTooltipEnabled } from './tooltip.mjs';
 import { updateWidgets, widgetPlugin } from './widget.mjs';
+import { claudePrompt } from './claude.mjs';
 
 export { toggleBlockComment, toggleBlockCommentByLine, toggleComment, toggleLineComment } from '@codemirror/commands';
 
@@ -59,7 +60,7 @@ export const defaultSettings = {
   isAutoCompletionEnabled: true,
   isPatternHighlightingEnabled: true,
   isFlashEnabled: true,
-  isTooltipEnabled: false,
+  isTooltipEnabled: true,
   isLineWrappingEnabled: false,
   isTabIndentationEnabled: false,
   isMultiCursorEnabled: false,
@@ -95,6 +96,7 @@ export function initEditor({ initialCode = '', onChange, onEvaluate, onStop, roo
       }),
       sliderPlugin,
       widgetPlugin,
+      claudePrompt,
       // indentOnInput(), // works without. already brought with javascript
       // extension? bracketMatching(), // does not do anything
       syntaxHighlighting(defaultHighlightStyle),

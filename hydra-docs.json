@@ -1,0 +1,1555 @@
+{
+  "docs": [
+    {
+      "name": "hide",
+      "description": "Signature: <code>.hide()</code>",
+      "meta": {
+        "source": "hydra",
+        "category": "Audio"
+      }
+    },
+    {
+      "name": "setBins",
+      "description": "Signature: <code>.setBins( bins )</code>",
+      "params": [
+        {
+          "name": "bins",
+          "type": {
+            "names": [
+              "integer"
+            ]
+          },
+          "description": "default x"
+        }
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Audio"
+      }
+    },
+    {
+      "name": "setCutoff",
+      "description": "Signature: <code>.setCutoff( frequency )</code>",
+      "params": [
+        {
+          "name": "frequency",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default x"
+        }
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Audio"
+      }
+    },
+    {
+      "name": "setScale",
+      "description": "Signature: <code>.setScale( amount )</code>",
+      "params": [
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default x"
+        }
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Audio"
+      }
+    },
+    {
+      "name": "setSmooth",
+      "description": "Signature: <code>.setSmooth( amount )</code>",
+      "params": [
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default x"
+        }
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Audio"
+      }
+    },
+    {
+      "name": "show",
+      "description": "Signature: <code>.show()</code>",
+      "meta": {
+        "source": "hydra",
+        "category": "Audio"
+      }
+    },
+    {
+      "name": "brightness",
+      "description": "Signature: <code>.brightness( amount )</code>",
+      "params": [
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.4"
+        }
+      ],
+      "examples": [
+        "osc(20,0,2)\n  .brightness( ({time}) => Math.sin(time) )\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Color"
+      }
+    },
+    {
+      "name": "contrast",
+      "description": "Signature: <code>.contrast( amount )</code><br>Larger <code>amount</code> value makes higher contrast.",
+      "params": [
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.6"
+        }
+      ],
+      "examples": [
+        "// 20Hz oscillator with contrast interpolating between 0.0-5.0\nosc(20).contrast( ({time}) => Math.sin(time) * 5 ).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Color"
+      }
+    },
+    {
+      "name": "color",
+      "description": "Signature: <code>.color( r, g, b )</code><br>Colorize texture.",
+      "params": [
+        {
+          "name": "r",
+          "type": {
+            "names": [
+              "float"
+            ]
+          }
+        },
+        {
+          "name": "g",
+          "type": {
+            "names": [
+              "float"
+            ]
+          }
+        },
+        {
+          "name": "b",
+          "type": {
+            "names": [
+              "float"
+            ]
+          }
+        }
+      ],
+      "examples": [
+        "// 20Hz oscillator source\n// color sequence of Red, Green, Blue, White, Black\n// output to buffer o0\nosc(20).color([1,0,0,1,0],[0,1,0,1,0],[0,0,1,1,0]).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Color"
+      }
+    },
+    {
+      "name": "colorama",
+      "description": "Signature: <code>.colorama( amount )</code><br>Shift HSV values.",
+      "params": [
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.005"
+        }
+      ],
+      "examples": [
+        "// 20Hz oscillator source\n// color sequence of Red, Green, Blue, White, Black\n// colorama sequence of 0.005, 0.5, 1.0 at 1/8 speed\n// output to buffer o0\nosc(20)\n  .color([1,0,0,1,0],[0,1,0,1,0],[0,0,1,1,0])\n  .colorama([0.005,0.33,0.66,1.0].fast(0.125))\n  .out(o0)",
+        "// \nnoise(3,0.1).colorama( ({time}) => Math.sin(time/5) ).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Color"
+      }
+    },
+    {
+      "name": "invert",
+      "description": "Signature: <code>.invert( amount )</code><br>Invert color.",
+      "params": [
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.0"
+        }
+      ],
+      "examples": [
+        "solid(1,1,1).invert([0,1]).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Color"
+      }
+    },
+    {
+      "name": "luma",
+      "description": "Signature: <code>.luma( threshold, tolerance )</code>",
+      "params": [
+        {
+          "name": "threshold",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        },
+        {
+          "name": "tolerance",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.1"
+        }
+      ],
+      "examples": [
+        "// default\nosc(10,0,1).luma(0.5,0.1).out(o0)\n\nosc(10,0,[0,0.5,1,2]).luma([0.1,0.25,0.75,1].fast(0.25),0.1).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Color"
+      }
+    },
+    {
+      "name": "posterize",
+      "description": "Signature: <code>.posterize( bins, gamma )</code>",
+      "params": [
+        {
+          "name": "bins",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "gamma",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.6"
+        }
+      ],
+      "examples": [
+        "// static gradient posterized, varying bins\ngradient(0).posterize( [1, 5, 15, 30] , 0.5 ).out(o0)\n\n// static gradient posterized, varying gamma\ngradient(0).posterize( 3, [0.1, 0.5, 1.0, 2.0] ).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Color"
+      }
+    },
+    {
+      "name": "saturate",
+      "description": "Signature: <code>.saturate( amount )</code>",
+      "params": [
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 2.0"
+        }
+      ],
+      "examples": [
+        "osc(10,0,1).saturate( ({time}) => Math.sin(time) * 10 ).out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Color"
+      }
+    },
+    {
+      "name": "shift",
+      "description": "Signature: <code>.shift( r, g, b, a )</code>",
+      "params": [
+        {
+          "name": "r",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        },
+        {
+          "name": "g",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        },
+        {
+          "name": "b",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        },
+        {
+          "name": "a",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        }
+      ],
+      "examples": [
+        ""
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Color"
+      }
+    },
+    {
+      "name": "thresh",
+      "description": "Signature: <code>.thresh( threshold, tolerance )</code>",
+      "params": [
+        {
+          "name": "threshold",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        },
+        {
+          "name": "tolerance",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.04"
+        }
+      ],
+      "examples": [
+        "// default\nnoise(3,0.1).thresh(0.5,0.04).out(o0)\n\nnoise(3,0.1)\n  .thresh( ({time})=>Math.sin(time/2) , [0.04,0.25,0.75,1].fast(0.25) )\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Color"
+      }
+    },
+    {
+      "name": "kaleid",
+      "description": "Signature: <code>.kaleid( nSides )</code><br>Kaleidoscope effect with <code>nSides</code> repetition.",
+      "params": [
+        {
+          "name": "nSides",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 4.0"
+        }
+      ],
+      "examples": [
+        "osc(25,-0.1,0.5).kaleid(50).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Geometry"
+      }
+    },
+    {
+      "name": "pixelate",
+      "description": "Signature: <code>.pixelate( x, y )</code><br>Pixelate texture with <code>pixelX</code> segments and <code>pixelY</code> segments.",
+      "params": [
+        {
+          "name": "pixelX",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 20.0"
+        },
+        {
+          "name": "pixelY",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 20.0"
+        }
+      ],
+      "examples": [
+        "// default\nnoise().pixelate(20,20).out(o0)\n\nnoise()\n  .mult(osc(10,0.25,1))\n  .scrollY(1,0.25)\n  .pixelate([100,40,20,70].fast(0.25))\n  .modulateRotate(src(o0).scale(0.5),0.125)\n  .diff(src(o0).rotate([-0.05,0.05].fast(0.125)))\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Geometry"
+      }
+    },
+    {
+      "name": "repeat",
+      "description": "Signature: <code>.repeat( repeatX, repeatY, offsetX, offsetY )</code>",
+      "params": [
+        {
+          "name": "repeatX",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "repeatY",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "offsetX",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        },
+        {
+          "name": "offsetY",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        }
+      ],
+      "examples": [
+        "// default\nshape().repeat(3.0, 3.0, 0.0, 0.0).out()\n\n// dogtooth factory\nshape(1.25,0.5,0.25)\n  .repeat(3, 3)\n  .scale(2)\n  .repeat(5, 5, ({time}) => Math.sin(time), ({time}) => Math.sin(time/2))\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Geometry"
+      }
+    },
+    {
+      "name": "repeatX",
+      "description": "Signature: <code>.repeatX( reps, offset )</code>",
+      "params": [
+        {
+          "name": "reps",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "offset",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        }
+      ],
+      "examples": [
+        "// default\nshape().repeatX(3.0, 0.0).out()\n\nosc(5,0,1)\n  .rotate(1.57)\n  .repeatX([1,2,5,10], ({time}) => Math.sin(time))\n  .out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Geometry"
+      }
+    },
+    {
+      "name": "repeatY",
+      "description": "Signature: <code>.repeatY( reps, offset )</code>",
+      "params": [
+        {
+          "name": "reps",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "offset",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        }
+      ],
+      "examples": [
+        "// default\nshape().repeatY(3.0, 0.0).out()\n\nosc(5,0,1)\n  .repeatY([1,2,5,10], ({time}) => Math.sin(time))\n  .out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Geometry"
+      }
+    },
+    {
+      "name": "rotate",
+      "description": "Signature: <code>.rotate( angle, speed )</code><br>Rotate texture.",
+      "params": [
+        {
+          "name": "angle",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 10.0"
+        },
+        {
+          "name": "speed",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        }
+      ],
+      "examples": [
+        "osc(50).rotate( ({time}) => time%360 ).out(o0)\n\nosc(10,1,1)\n    .rotate( ({time}) => time%360, ({time}) => Math.sin(time*0.1)*0.05 )\n    .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Geometry"
+      }
+    },
+    {
+      "name": "scale",
+      "description": "Signature: <code>.scale( size, xMult, yMult )</code><br>Scale texture.",
+      "params": [
+        {
+          "name": "size",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.5"
+        },
+        {
+          "name": "xMult",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.0"
+        },
+        {
+          "name": "yMult",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.0"
+        }
+      ],
+      "examples": [
+        "// default\nshape().scale(1.5,1,1).out()\n\nshape().scale(1.5,[0.25,0.5,0.75,1].fast(0.25),[3,2,1])\n  .invert([0,1].fast(0.25))\n  .kaleid(5)\n  .kaleid(12)\n  .scale( ({time})=>Math.sin(time/5)*0.5 )\n  .rotate(1,1)\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Geometry"
+      }
+    },
+    {
+      "name": "scrollX",
+      "description": "Signature: <code>.scrollX( scrollX, speed )</code>",
+      "params": [
+        {
+          "name": "scrollX",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        },
+        {
+          "name": "speed",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        }
+      ],
+      "examples": [
+        "// default\nosc(10,0,1).scrollX(0.5,0).out()\n\n// x position\nosc(10,0,1).scrollX([0,0.25,0.5,0.75,1].fast(4),0).out()\n\n// scroll speed\ngradient(1).scrollX(0, ({time}) => Math.sin(time*0.05)*0.05 ).out()\n\ngradient(0.125)\n  .scrollX(0, ({time}) => Math.sin(time*0.05)*0.05 )\n  .scrollY(0, ({time}) => Math.sin(time*0.01)*-0.07 )\n  .pixelate([5,2,10],[15,8])\n  .scale(0.15)\n  .modulate(noise(1,0.25))\n  .out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Geometry"
+      }
+    },
+    {
+      "name": "scrollY",
+      "description": "Signature: <code>.scrollY( scrollY, speed )</code>",
+      "params": [
+        {
+          "name": "scrollY",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        },
+        {
+          "name": "speed",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        }
+      ],
+      "examples": [
+        "// default\nosc(10,0,1).scrollY(0.5,0).out()\n\n// y position\nosc(10,0,1).scrollY([0,0.25,0.5,0.75,1].fast(4),0).out()\n\n// scroll speed\ngradient(1).scrollY(0, ({time}) => Math.sin(time*0.05)*0.05 ).out()\n\ngradient(0.125)\n  .scrollX(0, ({time}) => Math.sin(time*0.05)*0.05 )\n  .scrollY(0, ({time}) => Math.sin(time*0.01)*-0.07 )\n  .pixelate([5,2,10],[15,8])\n  .scale(0.15)\n  .modulate(noise(1,0.25))\n  .out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Geometry"
+      }
+    },
+    {
+      "name": "mouse",
+      "description": "Signature: <code>mouse</code><br>Control the oscillator frequency with the mouse position:",
+      "params": [
+        {
+          "name": ".x",
+          "type": {
+            "names": [
+              "x"
+            ]
+          },
+          "description": "position of mouse"
+        },
+        {
+          "name": ".y",
+          "type": {
+            "names": [
+              "y"
+            ]
+          },
+          "description": "position of mouse"
+        }
+      ],
+      "examples": [
+        "osc(() => mouse.x).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Global variables"
+      }
+    },
+    {
+      "name": "time",
+      "description": "Signature: <code>time</code><br>Control the oscillator using a sine wave based on the current time:",
+      "params": [
+        {
+          "name": "time",
+          "type": {
+            "names": [
+              "the"
+            ]
+          },
+          "description": "current time"
+        }
+      ],
+      "examples": [
+        "osc( ({time}) => Math.sin(time) ).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Global variables"
+      }
+    },
+    {
+      "name": "modulate",
+      "description": "Signature: <code>.modulate( texture, amount )</code><br>Modulate texture. More about modulation at: https://lumen-app.com/guide/modulation/",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.1"
+        }
+      ],
+      "examples": [
+        "// chocolate whirlpool\nvoronoi()\n  .color(0.9,0.25,0.15)\n  .rotate(({time})=>(time%360)/2)\n  .modulate(osc(25,0.1,0.5)\n            .kaleid(50)\n            .scale(({time})=>Math.sin(time*1)*0.5+1)\n            .modulate(noise(0.6,0.5)),\n            0.5)\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "modulateHue",
+      "description": "Signature: <code>.modulateHue( color, amount )</code><br>Changes coordinates based on hue of second input. Based on:https://www.shadertoy.com/view/XtcSWM",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.0"
+        }
+      ],
+      "examples": [
+        ""
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "modulateKaleid",
+      "description": "Signature: <code>.modulateKaleid( nSides )</code><br>See also: <a href=\"#kaleid\" target=\"_blank\" rel=\"noopener noreferrer\"><code>kaleid</code></a>.",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "nSides",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 4.0"
+        }
+      ],
+      "examples": [
+        "osc(9,-0.1,0.1)\n  .modulateKaleid(osc(11,0.5,0),50)\n  .scale(0.1,0.3)\n  .modulate(noise(5,0.1))\n  .mult(solid(1,1,0.3))\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "modulatePixelate",
+      "description": "Signature: <code>.modulatePixelate( multiple, offset )</code><br>See also: <a href=\"#pixelate\" target=\"_blank\" rel=\"noopener noreferrer\"><code>pixelate</code></a>",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "multiple",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 10.0"
+        },
+        {
+          "name": "offset",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        }
+      ],
+      "examples": [
+        "// what lies beneath\nvoronoi(10,1,5).brightness(()=>Math.random()*0.15)\n  .modulatePixelate(noise(25,0.5),100)\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "modulateRepeat",
+      "description": "Signature: <code>.modulateRepeat( texture, repeatX, repeatY, offsetX, offsetY )</code>",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "repeatX",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "repeatY",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "offsetX",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        },
+        {
+          "name": "offsetY",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        }
+      ],
+      "examples": [
+        "// default\nshape(4,0.9)\n  .mult(osc(3,0.5,1))\n  .modulateRepeat(osc(10), 3.0, 3.0, 0.5, 0.5)\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "modulateRepeatX",
+      "description": "Signature: <code>.modulateRepeatX( texture, reps, offset )</code>",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "reps",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "offset",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        }
+      ],
+      "examples": [
+        "// straight lines illusion\nshape(4,0.9)\n  .mult(osc(4,0.25,1))\n  .modulateRepeatX(osc(10), 5.0, ({time}) => Math.sin(time) * 5)\n  .scale(1,0.5,0.05)\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "modulateRepeatY",
+      "description": "Signature: <code>.modulateRepeatY( texture, reps, offset )</code>",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "reps",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "offset",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        }
+      ],
+      "examples": [
+        "// morphing grid\nshape(4,0.9)\n  .mult(osc(4,0.25,1))\n  .modulateRepeatY(osc(10), 5.0, ({time}) => Math.sin(time) * 5)\n  .scale(1,0.5,0.05)\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "modulateRotate",
+      "description": "Signature: <code>.modulateRotate( texture, multiple, offset )</code><br>See also: <a href=\"#rotate\" target=\"_blank\" rel=\"noopener noreferrer\"><code>rotate</code></a>",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "multiple",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.0"
+        },
+        {
+          "name": "offset",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        }
+      ],
+      "examples": [
+        "// wormhole\nvoronoi(100,3,5)\n  .modulateRotate(osc(1,0.5,0).kaleid(50).scale(0.5),15,0)\n  .mult(osc(50,-0.1,8).kaleid(9))\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "modulateScale",
+      "description": "Signature: <code>.modulateScale( multiple, offset )</code><br>See also: <a href=\"#scale\" target=\"_blank\" rel=\"noopener noreferrer\"><code>scale</code></a>",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "multiple",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.0"
+        },
+        {
+          "name": "offset",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.0"
+        }
+      ],
+      "examples": [
+        "// cosmic radiation\ngradient(5).repeat(50,50).kaleid([3,5,7,9].fast(0.5))\n  .modulateScale(osc(4,-0.5,0).kaleid(50).scale(0.5),15,0)\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "modulateScrollX",
+      "description": "Signature: <code>.modulateScrollX( multiple, scrollX, speed )</code><br>See also: <a href=\"#scrollx\" target=\"_blank\" rel=\"noopener noreferrer\"><code>scrollX</code></a>",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "scrollX",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        },
+        {
+          "name": "speed",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        }
+      ],
+      "examples": [
+        "// default\nvoronoi(25,0,0)\n  .modulateScrollX(osc(10),0.5,0)\n  .out(o0)\n\n// different scroll and speed\nvoronoi(25,0,0)\n  .modulateScrollX(osc(10),0.5,0.25)\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "modulateScrollY",
+      "description": "Signature: <code>.modulateScrollY( multiple, scrollX, speed )</code><br>See also: <a href=\"#scrollY\" target=\"_blank\" rel=\"noopener noreferrer\"><code>scrollY</code></a>",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "scrollY",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        },
+        {
+          "name": "speed",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        }
+      ],
+      "examples": [
+        "// default\nvoronoi(25,0,0)\n  .modulateScrollY(osc(10),0.5,0)\n  .out(o0)\n\n// different scroll and speed\nvoronoi(25,0,0)\n  .modulateScrollY(osc(10),0.5,0.25)\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Modulators"
+      }
+    },
+    {
+      "name": "add",
+      "description": "Signature: <code>.add( texture, amount )</code><br>Add textures.",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        }
+      ],
+      "examples": [
+        "shape().scale(0.5).add(shape(4),[0,0.25,0.5,0.75,1]).out()\n\nosc(9,0.1,1).add(osc(13,0.5,5)).out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Operators"
+      }
+    },
+    {
+      "name": "blend",
+      "description": "Signature: <code>.blend( texture, amount )</code><br>Blend textures.",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        }
+      ],
+      "examples": [
+        "shape().scale(0.5).blend(shape(4),[0,0.25,0.5,0.75,1]).out()\n\nosc(9,0.1,1).blend(osc(13,0.5,5)).out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Operators"
+      }
+    },
+    {
+      "name": "diff",
+      "description": "Signature: <code>.diff( texture )</code><br>Return difference of textures.",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        }
+      ],
+      "examples": [
+        "osc(9,0.1,1).diff(osc(13,0.5,5)).out()\n\nosc(1,1,2)\n  .diff(shape(6,1.1,0.01)\n        .scale(({time})=>Math.sin(time)*0.05 + 0.9)\n        .kaleid(15)\n        .rotate(({time})=>time%360))\n  .out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Operators"
+      }
+    },
+    {
+      "name": "layer",
+      "description": "Signature: <code>.layer( texture )</code><br>Overlay texture based on alpha value.",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        }
+      ],
+      "examples": [
+        "solid(1,0,0,1).layer(shape(4).color(0,1,0,({time})=>Math.sin(time*2))).out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Operators"
+      }
+    },
+    {
+      "name": "mask",
+      "description": "Signature: <code>.mask( texture, reps, offset )</code>",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "reps",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "offset",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.5"
+        }
+      ],
+      "examples": [
+        "// default\ngradient(5).mask(voronoi(),3,0.5).invert([0,1]).out()\n\n// algae pulse\nosc(10,-0.25,1).color(0,0,1).saturate(2).kaleid(50)\n  .mask(noise(25,2).modulateScale(noise(0.25,0.05)))\n  .modulateScale(osc(6,-0.5,2).kaleid(50))\n  .mult(osc(3,-0.25,2).kaleid(50))\n  .scale(0.5,0.5,0.75)\n  .out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Operators"
+      }
+    },
+    {
+      "name": "mult",
+      "description": "Signature: <code>.mult( texture, amount )</code><br>Multiply images and blend with the texture by <code>amount</code>.",
+      "params": [
+        {
+          "name": "texture",
+          "description": "<code>color</code> :: see <a href=\"#color-vec4\" target=\"_blank\" rel=\"noopener noreferrer\">color <code>vec4</code></a> | <code>src</code> :: see <a href=\"#src\" target=\"_blank\" rel=\"noopener noreferrer\"><code>src</code></a> | <code>shape</code> :: see <a href=\"#shape\" target=\"_blank\" rel=\"noopener noreferrer\"><code>shape</code></a>"
+        },
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.0"
+        }
+      ],
+      "examples": [
+        "osc(9,0.1,2).mult(osc(13,0.5,5)).out()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Operators"
+      }
+    },
+    {
+      "name": "gradient",
+      "description": "Signature: <code>gradient( speed )</code>",
+      "params": [
+        {
+          "name": "speed",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default x"
+        }
+      ],
+      "examples": [
+        "// gradient sequence at speeds of 1, 2 & 4\ngradient([1,2,4]).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Sources"
+      }
+    },
+    {
+      "name": "noise",
+      "description": "Signature: <code>noise( scale, offset )</code><br>Generate <a href=\"https://en.wikipedia.org/wiki/Perlin_noise\" target=\"_blank\" rel=\"noopener noreferrer\">Perlin noise</a>.",
+      "params": [
+        {
+          "name": "scale",
+          "type": {
+            "names": [
+              "int"
+            ]
+          },
+          "description": "default 10.0"
+        },
+        {
+          "name": "offset",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.1"
+        }
+      ],
+      "examples": [
+        "// noise interpolating between different scales and offsets\nnoise( ({time}) => Math.sin(time/10)*50 , ({time}) => Math.sin(time/2)/500 )\n    .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Sources"
+      }
+    },
+    {
+      "name": "osc",
+      "description": "Signature: <code>osc( frequency, sync, offset )</code>",
+      "params": [
+        {
+          "name": "frequency",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 60.0"
+        },
+        {
+          "name": "sync",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.1"
+        },
+        {
+          "name": "offset",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        }
+      ],
+      "examples": [
+        "// frequency\nosc( [1,10,50,100,250,500].fast(2) ).out(o0)\n\n// frequency 2\nosc( ({time}) => Math.sin(time/10) * 100 ).out(o0)\n\n// sync\nosc( 10, [-10,-1,-0.1,0,0.1,1,10], 0 ).out(o0)\n\n// offset\nosc(10,0.1, ({time}) => Math.sin(time/10) * 100 ).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Sources"
+      }
+    },
+    {
+      "name": "out",
+      "description": "Signature: <code>.out( buffer )</code>",
+      "params": [
+        {
+          "name": "buffer",
+          "description": "<code>osc</code>: <code>o0</code>, <code>o1</code>, <code>o2</code>, <code>o3</code> | <code>src</code>: <code>s0</code>, <code>s1</code>, <code>s2</code>, <code>s3</code>"
+        }
+      ],
+      "examples": [
+        "// output four oscillators to different buffers\n// and then modulate them together\nosc( [1,10,50,100,250,500].fast(2) ).kaleid(20).out(o0) // frequency\nosc( ({time}) => Math.sin(time/10) * 100 ).kaleid(19).out(o1) // frequency 2\nosc( 10, [-10,-1,-0.1,0,0.1,1,10], 0 ).kaleid(21).out(o2) // sync\nosc(10,0.1, ({time}) => Math.sin(time/10) * 1 ) // offset\n  .modulate(o1,0.05)\n  .modulate(o2,0.05)\n  .modulate(o3,0.05)\n  .kaleid(20)\n  .add(noise(3,10))\n  .out(o3)\nrender(o3)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Sources"
+      }
+    },
+    {
+      "name": "render",
+      "description": "Signature: <code>render( buffer )</code>",
+      "examples": [
+        "osc( [1,10,50,100,250,500].fast(2) ).out(o0) // frequency\nosc( ({time}) => Math.sin(time/10) * 100 ).out(o1) // frequency 2\nosc( 10, [-10,-1,-0.1,0,0.1,1,10], 0 ).out(o2) // sync\nosc(10,0.1, ({time}) => Math.sin(time/10) * 100 ).out(o3) // offset\n\nrender(o0) // change to o1, o2, or o3",
+        "// see all four buffers at once\nosc( [1,10,50,100,250,500].fast(2) ).out(o0) // frequency\nosc( ({time}) => Math.sin(time/10) * 100 ).out(o1) // frequency 2\nosc( 10, [-10,-1,-0.1,0,0.1,1,10], 0 ).out(o2) // sync\nosc(10,0.1, ({time}) => Math.sin(time/10) * 100 ).out(o3) // offset\nrender()"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Sources"
+      }
+    },
+    {
+      "name": "shape",
+      "description": "Signature: <code>shape( sides, radius, smoothing)</code>",
+      "params": [
+        {
+          "name": "sides",
+          "type": {
+            "names": [
+              "int"
+            ]
+          },
+          "description": "default 3.0"
+        },
+        {
+          "name": "radius",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.3"
+        },
+        {
+          "name": "smoothing",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.01"
+        }
+      ],
+      "examples": [
+        "// inverting blurry circle\nshape(100,0.01,1).invert(({time})=>Math.sin(time)*2).out(o0)\n\n// a... rainbow ball?\nshape(5,0.5,0.1).repeat(19,19)\n  .mult(osc(10,1,2))\n  .rotate( ({time}) => time%360 )\n  .scrollX(1,-0.25)\n  .mult(shape(15,0.3,0.01)\n        .rotate( ({time}) => time%360 )\n        .scrollX(1,-0.25))\n  .out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Sources"
+      }
+    },
+    {
+      "name": "solid",
+      "description": "Signature: <code>solid( r, g, b, a )</code>",
+      "params": [
+        {
+          "name": "r",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        },
+        {
+          "name": "g",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        },
+        {
+          "name": "b",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.0"
+        },
+        {
+          "name": "a",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 1.0"
+        }
+      ],
+      "examples": [
+        "// cycling through red, green and blue\nsolid([1,0,0],[0,1,0],[0,0,1],1).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Sources"
+      }
+    },
+    {
+      "name": "src",
+      "description": "Signature: <code>src( input )</code><br>See <code>hydra-examples</code> repository",
+      "params": [
+        {
+          "name": "input",
+          "type": {
+            "names": [
+              "input"
+            ]
+          },
+          "description": "examples: <code>o0</code>, <code>s1</code>"
+        }
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Sources"
+      }
+    },
+    {
+      "name": "voronoi",
+      "description": "Signature: <code>voronoi( scale, speed, blending )</code><br>Generate <a href=\"https://en.wikipedia.org/wiki/Voronoi_diagram\" target=\"_blank\" rel=\"noopener noreferrer\">voronoi shapes</a>.",
+      "params": [
+        {
+          "name": "scale",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 5"
+        },
+        {
+          "name": "speed",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.3"
+        },
+        {
+          "name": "blending",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default 0.3"
+        }
+      ],
+      "examples": [
+        "// default\nvoronoi(5,0.3,0.3).out(o0)\n\n// fireflies\nvoronoi(25,2,10).color(1,1,0).brightness(0.15).out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Sources"
+      }
+    },
+    {
+      "name": "fast",
+      "description": "Signature: <code>fast ( amount)</code><br>#### fast",
+      "params": [
+        {
+          "name": "amount",
+          "type": {
+            "names": [
+              "float"
+            ]
+          },
+          "description": "default x"
+        }
+      ],
+      "examples": [
+        "osc(\n   [80, 100, 200, 50].fast(0.2), 1\n)\n.out(o0)"
+      ],
+      "meta": {
+        "source": "hydra",
+        "category": "Parameter sequences"
+      }
+    }
+  ],
+  "meta": {
+    "source": "https://github.com/ojack/hydra/blob/main/docs/funcs.md",
+    "license": "AGPL-3.0-or-later"
+  }
+}
