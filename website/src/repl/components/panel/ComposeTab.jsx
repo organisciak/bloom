@@ -206,7 +206,7 @@ export function ComposeTab({ context }) {
     <div className="flex flex-col gap-4 p-3">
       <div className="flex justify-end">
         <select
-          className="text-xs p-1 bg-lineHighlight rounded-md border border-foreground opacity-60 hover:opacity-100"
+          className="text-xs p-1 bg-lineHighlight text-foreground rounded-md border border-foreground opacity-60 hover:opacity-100"
           value={provider}
           onChange={(event) => setProvider(event.target.value)}
           title="Generation backend"
@@ -217,7 +217,7 @@ export function ComposeTab({ context }) {
       </div>
 
       <div className="flex flex-col gap-2">
-        <label className="text-sm">Prompt</label>
+        <label className="text-sm text-foreground">Prompt</label>
         <textarea
           className="p-2 bg-background rounded-md border-foreground text-foreground min-h-[120px]"
           placeholder="Describe the full composition you want..."
@@ -228,7 +228,7 @@ export function ComposeTab({ context }) {
           {aiPromptPresets.map((preset) => (
             <button
               key={preset.id}
-              className="text-xs px-2 py-1 rounded-full bg-lineHighlight hover:opacity-80"
+              className="text-xs px-2 py-1 rounded-full bg-lineHighlight text-foreground hover:opacity-80"
               onClick={() => handlePreset(preset)}
             >
               {preset.label}
@@ -239,7 +239,7 @@ export function ComposeTab({ context }) {
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <label className="text-sm">Context files</label>
+          <label className="text-sm text-foreground">Context files</label>
           <div className="flex gap-2">
             <ActionButton label="add files" onClick={handleFilePicker} />
             <ActionButton label="add current" onClick={handleAddCurrent} />
@@ -256,12 +256,12 @@ export function ComposeTab({ context }) {
           style={{ display: 'none' }}
         />
         <div className="flex flex-col gap-1 rounded-md bg-background bg-opacity-50 p-2 min-h-[64px]">
-          {!contextFiles.length && <span className="text-xs opacity-70">No context files added.</span>}
+          {!contextFiles.length && <span className="text-xs text-foreground opacity-70">No context files added.</span>}
           {contextFiles.map((file) => (
-            <div key={file.id} className="flex items-center justify-between text-sm">
+            <div key={file.id} className="flex items-center justify-between text-sm text-foreground">
               <span className="truncate">{file.name}</span>
               <button
-                className="text-xs opacity-70 hover:opacity-100"
+                className="text-xs text-foreground opacity-70 hover:opacity-100"
                 onClick={() => handleRemoveFile(file.id)}
               >
                 remove
@@ -300,7 +300,7 @@ export function ComposeTab({ context }) {
             />
           )}
         </div>
-        {status && <span className="text-xs opacity-80 fade-in">{status}</span>}
+        {status && <span className="text-xs text-foreground opacity-80 fade-in">{status}</span>}
       </div>
     </div>
   );

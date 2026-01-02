@@ -2,7 +2,7 @@ import cx from '@src/cx.mjs';
 
 export function ActionButton({ children, label, labelIsHidden, className, ...buttonProps }) {
   return (
-    <button className={cx('hover:opacity-50 text-nowrap w-fit', className)} title={label} {...buttonProps}>
+    <button className={cx('hover:opacity-50 text-nowrap w-fit text-foreground', className)} title={label} {...buttonProps}>
       {labelIsHidden !== true && label}
       {children}
     </button>
@@ -15,7 +15,7 @@ export function SpecialActionButton(props) {
   return (
     <ActionButton
       {...buttonProps}
-      className={cx('bg-background p-2 max-w-[300px] rounded-md hover:opacity-50', className)}
+      className={cx('bg-background p-2 max-w-[300px] rounded-md hover:opacity-50 text-foreground', className)}
     />
   );
 }
