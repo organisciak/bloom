@@ -3,8 +3,8 @@ import { buildComposePrompt, normalizeContextFiles, stripCodeFences } from '../.
 
 export const prerender = false;
 
-const DEFAULT_CLAUDE_MODEL = 'claude-3-5-sonnet-20240620';
-const DEFAULT_OPENAI_MODEL = 'gpt-4o-mini';
+const DEFAULT_CLAUDE_MODEL = 'claude-sonnet-4-5-20250929';
+const DEFAULT_OPENAI_MODEL = 'gpt-5-mini';
 const DEFAULT_MAX_TOKENS = 2048;
 
 const parseMaxTokens = (value: string | undefined) => {

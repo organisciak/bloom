@@ -1,9 +1,9 @@
 import type { APIRoute } from 'astro';
-import { buildHydraContextBlock, buildSoundContextBlock } from '../../repl/ai_prompt.mjs';
+import { buildHydraContextBlock, buildSoundContextBlock, stripCodeFences } from '../../repl/ai_prompt.mjs';
 
 export const prerender = false;
 
-const DEFAULT_MODEL = 'claude-3-5-sonnet-20240620';
+const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
 const DEFAULT_MAX_TOKENS = 2048;
 
 const buildUserPrompt = ({
@@ -128,7 +128,8 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const content = Array.isArray(data?.content) ? data.content : [];
-  const text = content.map((part: { text?: string }) => part?.text || '').join('').trim();
+  const rawText = content.map((part: { text?: string }) => part?.text || '').join('').trim();
+  const text = stripCodeFences(rawText);
   if (!text) {
     return new Response(JSON.stringify({ error: 'Claude API returned empty content.' }), {
       status: 500,

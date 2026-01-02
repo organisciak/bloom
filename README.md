@@ -27,8 +27,8 @@ After cloning the project, you can run the REPL locally:
 Optional local AI features (Claude/OpenAI):
 - Set `ANTHROPIC_API_KEY` to enable Claude inline edits and AI composition generation.
 - Set `OPENAI_API_KEY` to enable OpenAI composition generation.
-- Optional: `ANTHROPIC_MODEL` (defaults to `claude-3-5-sonnet-20240620`) and `ANTHROPIC_MAX_TOKENS` (defaults to 2048).
-- Optional: `OPENAI_MODEL` (defaults to `gpt-4o-mini`) and `OPENAI_MAX_TOKENS` (defaults to 2048).
+- Optional: `ANTHROPIC_MODEL` (defaults to `claude-sonnet-4-5-20250929`) and `ANTHROPIC_MAX_TOKENS` (defaults to 2048).
+- Optional: `OPENAI_MODEL` (defaults to `gpt-5-mini`) and `OPENAI_MAX_TOKENS` (defaults to 2048).
 
 ## Using Strudel In Your Project
 

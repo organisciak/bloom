@@ -3,7 +3,7 @@ import { buildInlineSuggestionsPrompt } from '../../repl/ai_prompt.mjs';
 
 export const prerender = false;
 
-const DEFAULT_MODEL = 'claude-3-5-haiku-20241022';
+const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
 const DEFAULT_MAX_TOKENS = 512;
 
 const jsonResponse = (body: unknown, status = 200) =>
