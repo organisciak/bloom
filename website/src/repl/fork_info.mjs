@@ -24,7 +24,7 @@ export const FORK_DIFFS = [
   },
   {
     title: 'Joy controls',
-    body: 'Tap tempo with a pulse, favorites, nudges, mood deck, snapshot swap, metronome, and postcards for sharing.',
+    body: 'Tempo pulse, favorites, nudges, mood deck, snapshot swap, metronome, and postcards for sharing.',
   },
 ];
 

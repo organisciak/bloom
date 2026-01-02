@@ -45,7 +45,7 @@ import { debugAudiograph } from './audiograph';
 import { pickRandomPattern } from './random_utils.mjs';
 import { ideaRecipes, pickIdeaRecipe } from './idea_recipes.mjs';
 import { FORK_NAME } from './fork_info.mjs';
-import { createTapTempo, clampTempo, cpsToCpm } from './tempo_utils.mjs';
+import { cpsToCpm } from './tempo_utils.mjs';
 import { nudgeRecipes, pickNudgeRecipe } from './nudge_recipes.mjs';
 import { moodRecipes, pickMoodRecipe } from './mood_recipes.mjs';
 import { buildPostcard } from './postcard_utils.mjs';
@@ -210,10 +210,8 @@ export function useReplContext() {
   const lastNudgeIdRef = useRef(null);
   const lastMoodIdRef = useRef(null);
   const snapshotRef = useRef('');
-  const tapTempoRef = useRef(createTapTempo());
   const historyRef = useRef(createHistory(20));
   const [tempoCps, setTempoCps] = useState(null);
-  const [tapCount, setTapCount] = useState(0);
   const [historyCount, setHistoryCount] = useState(0);
   const [hasSnapshotState, setHasSnapshotState] = useState(false);
   const [metronomeEnabled, setMetronomeEnabled] = useState(false);
@@ -817,21 +815,6 @@ export function useReplContext() {
     }
   };
 
-  const handleTapTempo = () => {
-    const cps = tapTempoRef.current.registerTap();
-    setTapCount(tapTempoRef.current.count());
-    if (cps == null) return;
-    const clamped = clampTempo(cps);
-    if (!clamped) return;
-    editorRef.current?.repl?.setCps(clamped);
-    setTempoCps(clamped);
-    const cpm = cpsToCpm(clamped);
-    if (cpm) {
-      logger(`[repl] tempo ${Math.round(cpm)} cpm`, 'highlight');
-      announce(`tempo ${Math.round(cpm)} cpm`, 'good');
-    }
-  };
-
   const handleRewind = () => {
     const previous = historyRef.current.undo();
     setHistoryCount(historyRef.current.size());
@@ -1131,7 +1114,6 @@ export function useReplContext() {
     isDirty,
     activeCode,
     handleTogglePlay,
-    handleTapTempo,
     handleUpdate,
     handleShuffle,
     handleNudge,
@@ -1164,7 +1146,6 @@ export function useReplContext() {
     hasSnapshot: hasSnapshotState,
     metronomeEnabled,
     tempoCps,
-    tapCount,
     historyCount,
     actionMessage,
     actionTone,

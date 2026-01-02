@@ -26,7 +26,7 @@ export function PreviewModal({ isOpen, onClose, onTry, onApply, title, code, chi
       <div className="relative z-10 flex flex-col max-w-2xl max-h-[80vh] w-full mx-4 bg-background border border-foreground rounded-lg shadow-2xl fade-in">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-foreground">
-          <h2 className="text-lg font-semibold">{title}</h2>
+          <h2 className="text-lg font-semibold text-foreground">{title}</h2>
           <button
             onClick={onClose}
             className="text-foreground opacity-70 hover:opacity-100 transition-opacity"
@@ -39,7 +39,7 @@ export function PreviewModal({ isOpen, onClose, onTry, onApply, title, code, chi
         {/* Content */}
         <div className="flex-1 overflow-auto p-4">
           {children || (
-            <pre className="text-sm font-mono bg-lineBackground p-4 rounded border border-foreground overflow-auto">
+            <pre className="text-sm font-mono bg-lineBackground text-foreground p-4 rounded border border-foreground overflow-auto">
               {code}
             </pre>
           )}
@@ -49,7 +49,7 @@ export function PreviewModal({ isOpen, onClose, onTry, onApply, title, code, chi
         <div className="flex gap-3 p-4 border-t border-foreground justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm border border-foreground rounded hover:bg-lineHighlight transition-colors"
+            className="px-4 py-2 text-sm text-foreground border border-foreground rounded hover:bg-lineHighlight transition-colors"
           >
             Cancel
           </button>
@@ -59,7 +59,7 @@ export function PreviewModal({ isOpen, onClose, onTry, onApply, title, code, chi
                 onTry();
                 onClose();
               }}
-              className="px-4 py-2 text-sm border border-foreground rounded hover:bg-lineHighlight transition-colors"
+              className="px-4 py-2 text-sm text-foreground border border-foreground rounded hover:bg-lineHighlight transition-colors"
             >
               Try it
             </button>

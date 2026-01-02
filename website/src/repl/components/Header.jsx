@@ -23,7 +23,6 @@ export function Header({ context, embedded = false }) {
     isDirty,
     activeCode,
     handleTogglePlay,
-    handleTapTempo,
     handleEvaluate,
     handleShuffle,
     handleNudge,
@@ -45,7 +44,6 @@ export function Header({ context, embedded = false }) {
     hasSnapshot,
     metronomeEnabled,
     tempoCps,
-    tapCount,
     historyCount,
     actionMessage,
     actionTone,
@@ -71,7 +69,6 @@ export function Header({ context, embedded = false }) {
   };
   const tempoCpm = Number.isFinite(tempoCps) ? Math.round(tempoCps * 60) : null;
   const pulseDurationMs = tempoCps ? Math.max(120, Math.round(1000 / tempoCps)) : 1000;
-  const tapTitle = tapCount ? `tap tempo (${tapCount})` : 'tap tempo';
   const elapsedLabel = formatElapsed(elapsedMs);
   const metroLabel = metronomeEnabled ? 'metro on' : 'metro off';
   const statusMessage = actionMessage || (pending ? 'loading' : isDirty ? 'unsaved' : started ? 'live' : 'ready');
@@ -304,11 +301,6 @@ export function Header({ context, embedded = false }) {
             >
               <span className="header-status-label">{statusMessage}</span>
             </div>
-          )}
-          {!isEmbedded && (
-            <button title={tapTitle} className="hover:opacity-50 p-2 flex items-center space-x-1" onClick={handleTapTempo}>
-              <span>tap</span>
-            </button>
           )}
           <button
             onClick={handleEvaluate}

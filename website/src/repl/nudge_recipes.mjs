@@ -24,11 +24,6 @@ export const nudgeRecipes = [
     title: 'fifth shadow',
     code: '$: note("<0 7>").s("sawtooth").lpf(600).gain(0.25).slow(4)',
   },
-  {
-    id: 'tap-delay',
-    title: 'tap delay',
-    code: '$: s("bd ~ sd ~").delay(0.25).delaytime(0.25).delayfeedback(0.4).gain(0.4)',
-  },
 ];
 
 export const pickNudgeRecipe = (recipes, lastId) => {
