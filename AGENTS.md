@@ -45,6 +45,8 @@ Guidance for future LLMs working in this repo.
 
 ## Working style
 - Check in with the user often while building features to confirm direction.
+- NEVER push to `upstream`, just `origin`
+- Note new features, once they're implemented, to README in the `New features and changes` section
 - When writing commit messages and the user asked for it, use a copy-edited version of their wording as a quote when relevant.
 
 ## Common workflows
@@ -56,3 +58,185 @@ Guidance for future LLMs working in this repo.
 ## Tooling
 - Use `rg` for search.
 - Use `pnpm` for install/test/dev (`pnpm dev` for the website).
+
+
+## Issue Tracking
+
+We use bd (beads) for issue tracking instead of Markdown TODOs or external tools.
+
+### Quick Reference
+
+```bash
+# Find ready work (no blockers)
+bd ready --json
+
+# Find ready work including future deferred issues
+bd ready --include-deferred --json
+
+# Create new issue
+bd create "Issue title" -t bug|feature|task -p 0-4 -d "Description" --json
+
+# Create issue with due date and defer (GH#820)
+bd create "Task" --due=+6h              # Due in 6 hours
+bd create "Task" --defer=tomorrow       # Hidden from bd ready until tomorrow
+bd create "Task" --due="next monday" --defer=+1h  # Both
+
+# Update issue status
+bd update <id> --status in_progress --json
+
+# Update issue with due/defer dates
+bd update <id> --due=+2d                # Set due date
+bd update <id> --defer=""               # Clear defer (show immediately)
+
+# Link discovered work
+bd dep add <discovered-id> <parent-id> --type discovered-from
+
+# Complete work
+bd close <id> --reason "Done" --json
+
+# Show dependency tree
+bd dep tree <id>
+
+# Get issue details
+bd show <id> --json
+
+# Query issues by time-based scheduling (GH#820)
+bd list --deferred              # Show issues with defer_until set
+bd list --defer-before=tomorrow # Deferred before tomorrow
+bd list --defer-after=+1w       # Deferred after one week from now
+bd list --due-before=+2d        # Due within 2 days
+bd list --due-after="next monday" # Due after next Monday
+bd list --overdue               # Due date in past (not closed)
+```
+
+### Workflow
+
+1. **Check for ready work**: Run `bd ready` to see what's unblocked
+2. **Claim your task**: `bd update <id> --status in_progress`
+3. **Work on it**: Implement, test, document
+4. **Discover new work**: If you find bugs or TODOs, create issues:
+   - `bd create "Found bug in auth" -t bug -p 1 --json`
+   - Link it: `bd dep add <new-id> <current-id> --type discovered-from`
+5. **Complete**: `bd close <id> --reason "Implemented"`
+6. **Export**: Run `bd export -o .beads/issues.jsonl` before committing
+
+### Issue Types
+
+- `bug` - Something broken that needs fixing
+- `feature` - New functionality
+- `task` - Work item (tests, docs, refactoring)
+- `epic` - Large feature composed of multiple issues
+- `chore` - Maintenance work (dependencies, tooling)
+
+### Priorities
+
+- `0` - Critical (security, data loss, broken builds)
+- `1` - High (major features, important bugs)
+- `2` - Medium (nice-to-have features, minor bugs)
+- `3` - Low (polish, optimization)
+- `4` - Backlog (future ideas)
+
+### Dependency Types
+
+- `blocks` - Hard dependency (issue X blocks issue Y)
+- `related` - Soft relationship (issues are connected)
+- `parent-child` - Epic/subtask relationship
+- `discovered-from` - Track issues discovered during work
+
+Only `blocks` dependencies affect the ready work queue.
+
+## Development Guidelines
+
+### Before Committing
+
+1. **Run tests**: `pnpm run test`
+2. **Export issues**: `bd export -o .beads/issues.jsonl`
+3. **Update docs**: If you changed behavior, update README.md or other docs
+4. **Git add both**: `git add .beads/issues.jsonl <your-changes>`
+
+### Git Workflow
+
+```bash
+# Make changes
+git add <files>
+
+# Export beads issues
+bd export -o .beads/issues.jsonl
+git add .beads/issues.jsonl
+
+# Commit
+git commit -m "Your message"
+
+# After pull
+git pull
+bd import -i .beads/issues.jsonl  # Sync SQLite cache
+```
+
+### Syncing with Upstream Strudel
+
+This fork tracks the original Strudel repository for updates. The remotes are configured as:
+- `origin` - Your fork at https://github.com/organisciak/Bloom.git (push and pull)
+- `upstream` - Original Strudel at https://codeberg.org/uzu/strudel.git (pull only, never push)
+
+**Important**: Never push to `upstream`. It's configured for pulling updates only.
+
+#### Merge from upstream (recommended for most cases)
+
+```bash
+# Fetch latest changes from upstream
+git fetch upstream
+
+# Merge upstream main into your current branch
+git merge upstream/main
+
+# Resolve any conflicts if they occur
+# Then commit the merge
+
+# Push to your fork
+git push origin main
+```
+
+#### Rebase from upstream (cleaner history, use with caution)
+
+```bash
+# Fetch latest changes from upstream
+git fetch upstream
+
+# Rebase your current branch onto upstream main
+git rebase upstream/main
+
+# Resolve conflicts one commit at a time if they occur
+# Use git rebase --continue after resolving each conflict
+
+# Force push to your fork (only if you haven't shared this branch)
+git push origin main --force-with-lease
+```
+
+**When to use merge vs rebase:**
+- **Merge**: Safer for shared branches. Preserves complete history. Use when collaborating or unsure.
+- **Rebase**: Cleaner linear history. Only use on branches you haven't shared, or coordinate with collaborators first.
+
+**After syncing:**
+1. Run tests: `pnpm run test`
+2. Check for breaking changes in upstream commits
+3. Update any custom features that may conflict with upstream changes
+
+## Current Project Status
+
+Run `bd stats` to see overall progress.
+
+## Questions?
+
+- Check existing issues: `bd list`
+- Look at recent commits: `git log --oneline -20`
+- Read the docs: README.md
+- Create an issue if unsure: `bd create "Question: ..." -t task -p 2`
+
+## Pro Tips for Agents
+
+- Always use `--json` flags for programmatic use
+- Link discoveries with `discovered-from` to maintain context
+- Check `bd ready` before asking "what next?"
+- Export to JSONL before committing (or use git hooks)
+- Use `bd dep tree` to understand complex dependencies
+- Priority 0-1 issues are usually more important than 2-4
