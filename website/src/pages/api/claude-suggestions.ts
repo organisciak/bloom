@@ -1,9 +1,12 @@
 import type { APIRoute } from 'astro';
-import { buildInlineSuggestionsPrompt } from '../../repl/ai_prompt.mjs';
+import { buildInlineSuggestionsPrompt, stripCodeFences } from '../../repl/ai_prompt.mjs';
+import { getServerEnv } from './env';
+import { extractOpenAIText, withOpenAIMaxTokens, withOpenAITemperature } from './openai';
+import { buildSuggestionsFromText } from './suggestions';
 
 export const prerender = false;
 
-const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
+const DEFAULT_MODEL = 'gpt-5-nano';
 const DEFAULT_MAX_TOKENS = 512;
 
 const jsonResponse = (body: unknown, status = 200) =>
@@ -15,11 +18,6 @@ const jsonResponse = (body: unknown, status = 200) =>
 const parseMaxTokens = (value: string | undefined) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : DEFAULT_MAX_TOKENS;
-};
-
-const extractClaudeText = (data: any) => {
-  const content = Array.isArray(data?.content) ? data.content : [];
-  return content.map((part: { text?: string }) => part?.text || '').join('').trim();
 };
 
 const tryParseJson = (text: string) => {
@@ -39,18 +37,6 @@ const tryParseJson = (text: string) => {
   }
 };
 
-const normalizeSuggestions = (value: any) => {
-  const list = Array.isArray(value) ? value : [];
-  return list
-    .map((item) => {
-      const title = typeof item?.title === 'string' ? item.title.trim() : '';
-      const prompt = typeof item?.prompt === 'string' ? item.prompt.trim() : '';
-      return { title, prompt };
-    })
-    .filter((item) => item.prompt.length > 0)
-    .slice(0, 5);
-};
-
 export const POST: APIRoute = async ({ request }) => {
   let payload: {
     code?: string;
@@ -65,17 +51,14 @@ export const POST: APIRoute = async ({ request }) => {
 
   const code = typeof payload.code === 'string' ? payload.code : '';
   const selection = typeof payload.selection === 'string' ? payload.selection : '';
-  if (!code.trim()) {
-    return jsonResponse({ error: 'Missing code.' }, 400);
-  }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = getServerEnv('OPENAI_API_KEY');
   if (!apiKey) {
-    return jsonResponse({ error: 'ANTHROPIC_API_KEY is not set.' }, 500);
+    return jsonResponse({ error: 'OPENAI_API_KEY is not set.' }, 500);
   }
 
-  const model = process.env.ANTHROPIC_SUGGESTIONS_MODEL || DEFAULT_MODEL;
-  const maxTokens = parseMaxTokens(process.env.ANTHROPIC_SUGGESTIONS_MAX_TOKENS);
+  const model = getServerEnv('OPENAI_SUGGESTIONS_MODEL') || DEFAULT_MODEL;
+  const maxTokens = parseMaxTokens(getServerEnv('OPENAI_SUGGESTIONS_MAX_TOKENS'));
 
   const prompt = buildInlineSuggestionsPrompt({
     code,
@@ -85,35 +68,44 @@ export const POST: APIRoute = async ({ request }) => {
 
   let response: Response;
   try {
-    response = await fetch('https://api.anthropic.com/v1/messages', {
+    response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model,
-        max_tokens: maxTokens,
-        temperature: 0.4,
-        system: 'You return JSON only.',
-        messages: [{ role: 'user', content: [{ type: 'text', text: prompt }] }],
-      }),
+      body: JSON.stringify(
+        withOpenAITemperature(
+          withOpenAIMaxTokens(
+            {
+              model,
+              messages: [
+                { role: 'system', content: 'You return JSON only.' },
+                { role: 'user', content: prompt },
+              ],
+            },
+            model,
+            maxTokens,
+          ),
+          model,
+          0.4,
+        ),
+      ),
     });
   } catch (error) {
-    return jsonResponse({ error: 'Failed to reach Claude API.' }, 502);
+    return jsonResponse({ error: 'Failed to reach OpenAI API.' }, 502);
   }
 
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    return jsonResponse({ error: data?.error?.message || 'Claude API error.' }, response.status);
+    return jsonResponse({ error: data?.error?.message || 'OpenAI API error.' }, response.status);
   }
 
-  const text = extractClaudeText(data);
+  const text = stripCodeFences(extractOpenAIText(data));
   const parsed = tryParseJson(text);
-  const suggestions = normalizeSuggestions(parsed?.suggestions);
+  const suggestions = buildSuggestionsFromText(text, parsed);
   if (!suggestions.length) {
-    return jsonResponse({ error: 'Claude API returned no suggestions.' }, 500);
+    return jsonResponse({ suggestions: [], warning: 'OpenAI API returned no suggestions.' });
   }
 
   return jsonResponse({ suggestions });

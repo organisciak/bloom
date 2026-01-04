@@ -111,6 +111,24 @@ describe('ai compose prompt', () => {
     expect(prompt).toContain('$: fullStack');
   });
 
+  it('adds gain guidance when generation settings are enabled', () => {
+    // arrange
+    const input = {
+      prompt: 'fade in slowly',
+      contextFiles: [],
+      startGainsAtZero: true,
+      useGainSliders: true,
+    };
+
+    // act
+    const prompt = buildComposePrompt(input);
+
+    // assert
+    expect(prompt).toContain('Gain guidance:');
+    expect(prompt).toContain('Start all gain values at 0');
+    expect(prompt).toContain('slider(value, min, max, step)');
+  });
+
   it('builds a suggestions prompt with code and JSON shape', () => {
     // arrange
     const input = {
@@ -123,6 +141,7 @@ describe('ai compose prompt', () => {
 
     // assert
     expect(prompt).toContain('{"suggestions"');
+    expect(prompt).toContain('"why"');
     expect(prompt).toContain('Current composition:');
     expect(prompt).toContain('s("bd")');
     expect(prompt).toContain('fullStack');

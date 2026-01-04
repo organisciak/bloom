@@ -816,6 +816,12 @@
   gap: 6px;
 }
 
+.claude-prompt-suggestion-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .claude-prompt-suggestion {
   text-align: left;
   border: 1px solid var(--foreground);
@@ -824,11 +830,26 @@
   background: transparent;
   color: var(--foreground);
   cursor: pointer;
+  width: 100%;
 }
 
 .claude-prompt-suggestion:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.claude-prompt-suggestion--static {
+  cursor: default;
+}
+
+.claude-prompt-suggestion-detail {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.claude-prompt-suggestion-why {
+  font-size: 11px;
+  opacity: 0.6;
 }
 
 .claude-prompt-suggestions-status {
@@ -1074,6 +1095,7 @@ button:not(:disabled):active,
   text-transform: uppercase;
   letter-spacing: 0.08em;
   opacity: 0.7;
+  color: var(--foreground);
 }
 
 .workspace-recents-list {
@@ -1090,6 +1112,7 @@ button:not(:disabled):active,
   padding: 6px;
   border-radius: 6px;
   background: var(--lineBackground);
+  color: var(--foreground);
 }
 
 .workspace-recent-name {
@@ -1108,11 +1131,13 @@ button:not(:disabled):active,
   gap: 8px;
   font-size: 12px;
   opacity: 0.7;
+  color: var(--foreground);
 }
 
 .workspace-empty {
   font-size: 12px;
   opacity: 0.6;
+  color: var(--foreground);
 }
 
 .workspace-entry {
@@ -1145,14 +1170,17 @@ button:not(:disabled):active,
   width: 34px;
   text-align: left;
   opacity: 0.7;
+  color: var(--foreground);
 }
 
 .workspace-tree-folder {
   font-weight: 600;
+  color: var(--foreground);
 }
 
 .workspace-tree-file {
   font-family: var(--font-family, 'SF Mono', 'Monaco', monospace);
+  color: var(--foreground);
 }
 
 .workspace-entry--active {
@@ -1166,11 +1194,13 @@ button:not(:disabled):active,
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--foreground);
 }
 
 .workspace-entry-action {
   font-size: 12px;
   opacity: 0.7;
+  color: var(--foreground);
 }
 
 .workspace-entry-action:hover {

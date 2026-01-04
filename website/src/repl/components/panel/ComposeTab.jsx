@@ -63,6 +63,8 @@ export function ComposeTab({ context }) {
   const [provider, setProvider] = useState('claude');
   const [prompt, setPrompt] = useState('');
   const [contextFiles, setContextFiles] = useState([]);
+  const [startGainsAtZero, setStartGainsAtZero] = useState(false);
+  const [useGainSliders, setUseGainSliders] = useState(false);
   const [status, setStatus] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -179,6 +181,8 @@ export function ComposeTab({ context }) {
           contextFiles: contextFiles.map(({ name, content }) => ({ name, content })),
           soundContext,
           tempoCps,
+          startGainsAtZero,
+          useGainSliders,
         }),
       });
       const data = await response.json();
@@ -235,6 +239,26 @@ export function ComposeTab({ context }) {
             </button>
           ))}
         </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-sm text-foreground">Generation settings</label>
+        <label className="flex items-center gap-2 text-xs text-foreground">
+          <input
+            type="checkbox"
+            checked={startGainsAtZero}
+            onChange={(event) => setStartGainsAtZero(event.target.checked)}
+          />
+          Start all gains at 0
+        </label>
+        <label className="flex items-center gap-2 text-xs text-foreground">
+          <input
+            type="checkbox"
+            checked={useGainSliders}
+            onChange={(event) => setUseGainSliders(event.target.checked)}
+          />
+          Use slider(...) for gain numbers
+        </label>
       </div>
 
       <div className="flex flex-col gap-2">

@@ -1,40 +1,51 @@
 import { describe, it, expect } from 'vitest';
 import { buildClaudePrompt, matchInlineCommand } from '../packages/codemirror/claude_commands.mjs';
 
-describe('claude commands', () => {
-  it('matches /addsection at line end', () => {
+describe('claude prompt builder', () => {
+  it('returns empty string for non-string input', () => {
     // arrange
-    const input = '  /addsection';
+    const input = { prompt: 'add a bassline' };
 
     // act
-    const match = matchInlineCommand(input);
+    const prompt = buildClaudePrompt('edit', input);
 
     // assert
-    expect(match).not.toBeNull();
-    expect(match.trigger).toBe('/addsection');
-    expect(match.mode).toBe('add-section');
+    expect(prompt).toBe('');
   });
 
-  it('does not match when inline without whitespace', () => {
+  it('matches forward slash commands', () => {
     // arrange
-    const input = 'foo/addsection';
+    const input = '/ai';
 
     // act
-    const match = matchInlineCommand(input);
+    const command = matchInlineCommand(input);
 
     // assert
-    expect(match).toBeNull();
+    expect(command?.mode).toBe('edit');
+    expect(command?.trigger).toBe('/ai');
   });
 
-  it('builds add-section prompt prefix', () => {
+  it('matches legacy backslash commands', () => {
     // arrange
-    const input = 'make it metallic';
+    const input = '\\claude';
 
     // act
-    const prompt = buildClaudePrompt('add-section', input);
+    const command = matchInlineCommand(input);
 
     // assert
-    expect(prompt).toContain('Add a new instrument section');
-    expect(prompt).toContain('make it metallic');
+    expect(command?.mode).toBe('edit');
+    expect(command?.trigger).toBe('\\claude');
+  });
+
+  it('matches suggestions command', () => {
+    // arrange
+    const input = '/suggestions';
+
+    // act
+    const command = matchInlineCommand(input);
+
+    // assert
+    expect(command?.mode).toBe('suggestions');
+    expect(command?.trigger).toBe('/suggestions');
   });
 });

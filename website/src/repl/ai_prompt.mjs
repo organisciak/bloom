@@ -14,6 +14,20 @@ const STRUCTURE_PREFERENCE_BLOCK = [
   '- for visuals, you can reuse `fullStack.gain(0)` when needed',
 ].join('\n');
 
+const buildGainGuidanceBlock = ({ startGainsAtZero, useGainSliders }) => {
+  const lines = [];
+  if (startGainsAtZero) {
+    lines.push('Start all gain values at 0 so parts fade in safely.');
+  }
+  if (useGainSliders) {
+    lines.push('When calling gain(...), wrap numeric values in slider(value, min, max, step).');
+  }
+  if (!lines.length) {
+    return '';
+  }
+  return ['Gain guidance:', ...lines].join('\n');
+};
+
 export const normalizeContextFiles = (files) => {
   const list = Array.isArray(files) ? files : [];
   return list
@@ -59,9 +73,11 @@ export const buildInlineSuggestionsPrompt = ({ code, selection, soundContext }) 
   return [
     'You suggest concise edit prompts for a Strudel live-coding composition.',
     'Return JSON only in the following shape:',
-    '{"suggestions":[{"title":"...","prompt":"..."}]}',
+    '{"suggestions":[{"title":"...","prompt":"...","why":"..."}]}',
     'Provide 3-5 suggestions that are safe, musical, and easy to apply.',
     'Each "prompt" must be a direct edit instruction that can be applied as-is.',
+    'Each "why" should be a short reason for the tweak (one sentence).',
+    'Do not mention AI or the model.',
     ...(soundContextBlock ? ['', 'Available instruments (use exact names in s(...)):', soundContextBlock] : []),
     ...(structureBlock ? ['', 'Composition structure:', structureBlock] : []),
     ...(hydraContextBlock ? ['', 'Hydra usage (brief):', hydraContextBlock] : []),
@@ -73,7 +89,14 @@ export const buildInlineSuggestionsPrompt = ({ code, selection, soundContext }) 
   ].join('\n');
 };
 
-export const buildComposePrompt = ({ prompt, contextFiles, soundContext, tempoCps }) => {
+export const buildComposePrompt = ({
+  prompt,
+  contextFiles,
+  soundContext,
+  tempoCps,
+  startGainsAtZero = false,
+  useGainSliders = false,
+}) => {
   const files = normalizeContextFiles(contextFiles);
   const contextBlock = files.length
     ? files
@@ -86,6 +109,7 @@ export const buildComposePrompt = ({ prompt, contextFiles, soundContext, tempoCp
   const hydraContextBlock = buildHydraContextBlock();
   const structureBlock = buildStructurePreferenceBlock();
   const tempoContextBlock = buildTempoContextBlock(tempoCps);
+  const gainGuidanceBlock = buildGainGuidanceBlock({ startGainsAtZero, useGainSliders });
 
   return [
     'You are generating a full Strudel live-coding composition.',
@@ -93,6 +117,7 @@ export const buildComposePrompt = ({ prompt, contextFiles, soundContext, tempoCp
     'Use the user request, and optionally draw inspiration from context compositions.',
     ...(soundContextBlock ? ['', 'Available instruments (use exact names in s(...)):', soundContextBlock] : []),
     ...(tempoContextBlock ? ['', 'Tempo:', tempoContextBlock] : []),
+    ...(gainGuidanceBlock ? ['', gainGuidanceBlock] : []),
     ...(structureBlock ? ['', 'Composition structure:', structureBlock] : []),
     ...(hydraContextBlock ? ['', 'Hydra usage (brief):', hydraContextBlock] : []),
     '',

@@ -2,6 +2,7 @@ import jsdoc from '../../doc.json';
 import hydraDocs from '../../hydra-docs.json';
 import { autocompletion } from '@codemirror/autocomplete';
 import { h } from './html';
+import { SLASH_COMMANDS } from './claude_commands.mjs';
 //TODO: fix tonal scale import
 // import { Scale } from '@tonaljs/tonal';
 // import { soundMap } from '@strudel/webaudio';
@@ -22,6 +23,9 @@ const stripHtml = (html) => {
 
 const POPULAR_SECTION = { name: 'Popular', rank: 0 };
 const ALL_SECTION = { name: 'All', rank: 1 };
+const TOOL_SECTION = { name: 'Tools', rank: 0 };
+const STRUDEL_SECTION = { name: 'Strudel', rank: 1 };
+const HYDRA_SECTION = { name: 'Hydra', rank: 2 };
 
 const POPULAR_BANK_HINTS = ['tr909', 'tr808', 'linn', 'linndrum', 'lm1', 'lm2', 'cr78', 'dmx'];
 const POPULAR_SOUND_HINTS = ['bd', 'sd', 'hh', 'oh', 'cp', 'rim', 'perc', 'kick', 'snare', 'clap'];
@@ -247,6 +251,34 @@ const hydraCompletions = (() => {
 })();
 
 const allCompletions = [...jsdocCompletions, ...hydraCompletions];
+
+const buildSlashCommandOptions = (commands) =>
+  commands
+    .filter((command) => command.trigger?.startsWith('/'))
+    .map((command) => ({
+      label: command.trigger,
+      detail: 'Tool',
+      type: 'keyword',
+      section: TOOL_SECTION,
+      boost: 99,
+      apply: command.trigger,
+      info: command.description || undefined,
+    }));
+
+const buildSlashDocOptions = (completions, section) =>
+  completions.map((completion) => ({
+    ...completion,
+    section,
+    filterText: `/${completion.label}`,
+    apply: completion.label,
+  }));
+
+const slashCommandOptions = buildSlashCommandOptions(SLASH_COMMANDS);
+const slashDocOptions = [
+  ...buildSlashDocOptions(jsdocCompletions, STRUDEL_SECTION),
+  ...buildSlashDocOptions(hydraCompletions, HYDRA_SECTION),
+];
+const slashCompletions = [...slashCommandOptions, ...slashDocOptions];
 
 // --- Handler functions for each context ---
 const pitchNames = [
@@ -513,6 +545,22 @@ function chordHandler(context) {
 
 // Cached regex patterns for fallbackHandler
 const FALLBACK_WORD_REGEX = /\w*/;
+const SLASH_COMMAND_REGEX = /\/[\w-]*$/;
+
+function slashCommandHandler(context) {
+  const match = context.matchBefore(SLASH_COMMAND_REGEX);
+  if (!match) return null;
+  if (match.from > 0) {
+    const prevChar = context.state.sliceDoc(match.from - 1, match.from);
+    if (prevChar && !/\s/.test(prevChar)) {
+      return null;
+    }
+  }
+  return {
+    from: match.from,
+    options: slashCompletions,
+  };
+}
 
 function fallbackHandler(context) {
   const word = context.matchBefore(FALLBACK_WORD_REGEX);
@@ -527,6 +575,7 @@ function fallbackHandler(context) {
 }
 
 const handlers = [
+  slashCommandHandler,
   soundHandler,
   bankHandler,
   chordHandler,
@@ -553,4 +602,6 @@ export const __test__ = {
   buildSectionedOptions,
   getPopularBanks,
   getPopularSounds,
+  buildSlashCommandOptions,
+  buildSlashDocOptions,
 };

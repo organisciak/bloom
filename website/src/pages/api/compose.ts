@@ -1,5 +1,7 @@
 import type { APIRoute } from 'astro';
 import { buildComposePrompt, normalizeContextFiles, stripCodeFences } from '../../repl/ai_prompt.mjs';
+import { getServerEnv } from './env';
+import { extractOpenAIText, withOpenAIMaxTokens, withOpenAITemperature } from './openai';
 
 export const prerender = false;
 
@@ -31,10 +33,6 @@ const extractClaudeText = (data: any) => {
   return content.map((part: { text?: string }) => part?.text || '').join('').trim();
 };
 
-const extractOpenAIText = (data: any) => {
-  return data?.choices?.[0]?.message?.content?.trim() ?? '';
-};
-
 export const POST: APIRoute = async ({ request }) => {
   const payload = await readJson(request);
   if (!payload) {
@@ -51,16 +49,23 @@ export const POST: APIRoute = async ({ request }) => {
   const soundContext = payload.soundContext;
   const tempoCpsValue = Number(payload.tempoCps);
   const tempoCps = Number.isFinite(tempoCpsValue) ? tempoCpsValue : null;
-  const promptText = buildComposePrompt({ prompt, contextFiles, soundContext, tempoCps });
+  const promptText = buildComposePrompt({
+    prompt,
+    contextFiles,
+    soundContext,
+    tempoCps,
+    startGainsAtZero: payload.startGainsAtZero === true,
+    useGainSliders: payload.useGainSliders === true,
+  });
 
   if (provider === 'claude') {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const apiKey = getServerEnv('ANTHROPIC_API_KEY');
     if (!apiKey) {
       return jsonError('ANTHROPIC_API_KEY is not set.', 500);
     }
 
-    const model = process.env.ANTHROPIC_MODEL || DEFAULT_CLAUDE_MODEL;
-    const maxTokens = parseMaxTokens(process.env.ANTHROPIC_MAX_TOKENS);
+    const model = getServerEnv('ANTHROPIC_MODEL') || DEFAULT_CLAUDE_MODEL;
+    const maxTokens = parseMaxTokens(getServerEnv('ANTHROPIC_MAX_TOKENS'));
 
     let response: Response;
     try {
@@ -103,12 +108,12 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   if (provider === 'openai') {
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = getServerEnv('OPENAI_API_KEY');
     if (!apiKey) {
       return jsonError('OPENAI_API_KEY is not set.', 500);
     }
-    const model = process.env.OPENAI_MODEL || DEFAULT_OPENAI_MODEL;
-    const maxTokens = parseMaxTokens(process.env.OPENAI_MAX_TOKENS);
+    const model = getServerEnv('OPENAI_MODEL') || DEFAULT_OPENAI_MODEL;
+    const maxTokens = parseMaxTokens(getServerEnv('OPENAI_MAX_TOKENS'));
 
     let response: Response;
     try {
@@ -118,19 +123,27 @@ export const POST: APIRoute = async ({ request }) => {
           'content-type': 'application/json',
           authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({
+      body: JSON.stringify(
+        withOpenAITemperature(
+          withOpenAIMaxTokens(
+            {
+              model,
+              messages: [
+                { role: 'system', content: 'You generate complete Strudel compositions.' },
+                { role: 'user', content: promptText },
+              ],
+            },
+            model,
+            maxTokens,
+          ),
           model,
-          max_tokens: maxTokens,
-          temperature: 0.7,
-          messages: [
-            { role: 'system', content: 'You generate complete Strudel compositions.' },
-            { role: 'user', content: promptText },
-          ],
-        }),
-      });
-    } catch (error) {
-      return jsonError('Failed to reach OpenAI API.', 502);
-    }
+          0.7,
+        ),
+      ),
+    });
+  } catch (error) {
+    return jsonError('Failed to reach OpenAI API.', 502);
+  }
 
     const data = await response.json().catch(() => ({}));
     if (!response.ok) {

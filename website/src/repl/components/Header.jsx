@@ -38,7 +38,6 @@ export function Header({ context, embedded = false }) {
     handleCopyPostcard,
     handleOpenFile,
     handleSaveFile,
-    handleOpenWorkspace,
     handleToggleFavorite,
     isFavorite,
     hasSnapshot,
@@ -347,15 +346,6 @@ export function Header({ context, embedded = false }) {
               onClick={handleSaveFile}
             >
               <span>save</span>
-            </button>
-          )}
-          {!isEmbedded && (
-            <button
-              title="set workspace folder"
-              className="hover:opacity-50 p-2 flex items-center space-x-1"
-              onClick={handleOpenWorkspace}
-            >
-              <span>workspace</span>
             </button>
           )}
           {!isEmbedded && (

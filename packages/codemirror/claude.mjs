@@ -68,6 +68,8 @@ const setBusyState = (input, submit, cancel, status, suggestionsList, busy) => {
 
 const createPromptDom = (view, mode) => {
   const command = getCommandByMode(mode);
+  const isSuggestionsMode = mode === 'suggestions';
+  const canApplySuggestions = mode === 'edit';
   const dom = document.createElement('div');
   dom.className = 'claude-prompt';
 
@@ -88,7 +90,7 @@ const createPromptDom = (view, mode) => {
 
   const suggestionsTitle = document.createElement('div');
   suggestionsTitle.className = 'claude-prompt-suggestions-title';
-  suggestionsTitle.textContent = 'Suggestions';
+  suggestionsTitle.textContent = isSuggestionsMode ? 'Tweak ideas' : 'Suggestions';
 
   const suggestionsList = document.createElement('div');
   suggestionsList.className = 'claude-prompt-suggestions-list';
@@ -112,7 +114,7 @@ const createPromptDom = (view, mode) => {
   const cancel = document.createElement('button');
   cancel.type = 'button';
   cancel.className = 'claude-prompt-button claude-prompt-secondary';
-  cancel.textContent = 'Cancel';
+  cancel.textContent = isSuggestionsMode ? 'Close' : 'Cancel';
 
   actions.appendChild(submit);
   actions.appendChild(cancel);
@@ -179,15 +181,45 @@ const createPromptDom = (view, mode) => {
   const renderSuggestions = (items) => {
     suggestionsList.innerHTML = '';
     items.forEach((item) => {
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'claude-prompt-suggestion';
-      const label = item.title?.trim() || item.prompt?.trim() || '';
-      button.textContent = label;
-      button.addEventListener('click', () => {
-        submitRequest(item.prompt);
-      });
-      suggestionsList.appendChild(button);
+      const container = document.createElement('div');
+      container.className = 'claude-prompt-suggestion-item';
+
+      const title = typeof item.title === 'string' ? item.title.trim() : '';
+      const prompt = typeof item.prompt === 'string' ? item.prompt.trim() : '';
+      const why = typeof item.why === 'string' ? item.why.trim() : '';
+      const label = title || prompt || '';
+
+      if (canApplySuggestions) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'claude-prompt-suggestion';
+        button.textContent = label;
+        button.addEventListener('click', () => {
+          submitRequest(prompt);
+        });
+        container.appendChild(button);
+      } else {
+        const labelText = document.createElement('div');
+        labelText.className = 'claude-prompt-suggestion claude-prompt-suggestion--static';
+        labelText.textContent = label;
+        container.appendChild(labelText);
+      }
+
+      if (prompt && prompt !== label) {
+        const detail = document.createElement('div');
+        detail.className = 'claude-prompt-suggestion-detail';
+        detail.textContent = prompt;
+        container.appendChild(detail);
+      }
+
+      if (why) {
+        const reason = document.createElement('div');
+        reason.className = 'claude-prompt-suggestion-why';
+        reason.textContent = why;
+        container.appendChild(reason);
+      }
+
+      suggestionsList.appendChild(container);
     });
   };
 
@@ -222,7 +254,7 @@ const createPromptDom = (view, mode) => {
     }
   };
 
-  submit.addEventListener('click', submitRequest);
+  submit.addEventListener('click', () => submitRequest());
   cancel.addEventListener('click', closeAndFocus);
 
   input.addEventListener('keydown', (event) => {
@@ -240,11 +272,16 @@ const createPromptDom = (view, mode) => {
 
   dom.addEventListener('keydown', (event) => event.stopPropagation());
 
-  setTimeout(() => {
-    input.focus();
-  }, 0);
+  if (isSuggestionsMode) {
+    input.style.display = 'none';
+    submit.style.display = 'none';
+  } else {
+    setTimeout(() => {
+      input.focus();
+    }, 0);
+  }
 
-  if (mode === 'edit') {
+  if (mode === 'edit' || mode === 'suggestions') {
     loadSuggestions();
   } else {
     suggestions.style.display = 'none';
@@ -318,7 +355,10 @@ const claudeCommandPlugin = ViewPlugin.fromClass(
         return;
       }
       const hasUserInput = update.transactions.some(
-        (tr) => tr.isUserEvent('input') || tr.isUserEvent('input.type'),
+        (tr) =>
+          tr.isUserEvent('input') ||
+          tr.isUserEvent('input.type') ||
+          tr.isUserEvent('input.complete'),
       );
       if (!hasUserInput || !update.docChanged) {
         return;

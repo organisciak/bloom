@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { buildHydraContextBlock, buildSoundContextBlock, stripCodeFences } from '../../repl/ai_prompt.mjs';
+import { getServerEnv } from './env';
 
 export const prerender = false;
 
@@ -66,7 +67,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = getServerEnv('ANTHROPIC_API_KEY');
   if (!apiKey) {
     return new Response(JSON.stringify({ error: 'ANTHROPIC_API_KEY is not set.' }), {
       status: 500,
@@ -74,8 +75,8 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const model = process.env.ANTHROPIC_MODEL || DEFAULT_MODEL;
-  const maxTokens = Number(process.env.ANTHROPIC_MAX_TOKENS || DEFAULT_MAX_TOKENS);
+  const model = getServerEnv('ANTHROPIC_MODEL') || DEFAULT_MODEL;
+  const maxTokens = Number(getServerEnv('ANTHROPIC_MAX_TOKENS') || DEFAULT_MAX_TOKENS);
 
   const body = {
     model,
