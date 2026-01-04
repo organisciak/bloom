@@ -1,13 +1,12 @@
-# strudel
+# bloom - a strudel fork
 
-Live coding patterns on the web
-https://strudel.cc/
+`Strudel` is a phenomenal (and phenomenally fun) coding platform.
 
-- Try it here: <https://strudel.cc>
-- Docs: <https://strudel.cc/learn>
-- Technical Blog Post: <https://loophole-letters.vercel.app/strudel>
-- 1 Year of Strudel Blog Post: <https://loophole-letters.vercel.app/strudel1year>
-- 2 Years of Strudel Blog Post: <https://strudel.cc/blog/#year-2>
+`bloom`, this repo, is a fork with a bunch of quality of life improvements. *'Improvements'* in the most subjective of ways - this fork is unapolegetically opinionated, messy, and vibe coded. This isn't a capital-P project; I'm making the tool more fun for me, and just riding the waves of where it goes; I welcome you to join.
+
+## New features and changes from `strudel`
+
+TODO
 
 ## Running Locally
 
@@ -30,26 +29,8 @@ Optional local AI features (Claude/OpenAI):
 - Optional: `ANTHROPIC_MODEL` (defaults to `claude-sonnet-4-5-20250929`) and `ANTHROPIC_MAX_TOKENS` (defaults to 2048).
 - Optional: `OPENAI_MODEL` (defaults to `gpt-5-mini`) and `OPENAI_MAX_TOKENS` (defaults to 2048).
 
-## Using Strudel In Your Project
-
-This project is organized into many [packages](./packages), which are also available on [npm](https://www.npmjs.com/search?q=%40strudel).
-
-Read more about how to use these in your own project [here](https://strudel.cc/technical-manual/project-start).
-
-You will need to abide by the terms of the [GNU Affero Public Licence v3](LICENSE). As such, Strudel code can only be shared within free/open source projects under the same license -- see the license for details.
-
-Licensing info for the default sound banks can be found over on the [dough-samples](https://github.com/felixroos/dough-samples/blob/main/README.md) repository.
-
 ## Contributing
 
-There are many ways to contribute to this project! See [contribution guide](./CONTRIBUTING.md). You can find the full list of contributors [here](https://codeberg.org/uzu/strudel/activity/contributors).
+`bloom` uses the [AGPL-3.0](LICENSE.md), following `strudel`. Read their info before forking: <https://strudel.cc/technical-manual/project-start>.
 
-## Community
-
-There is a #strudel channel on the TidalCycles discord: <https://discord.com/invite/HGEdXmRkzT>
-
-You can also ask questions and find related discussions on the tidal club forum: <https://club.tidalcycles.org/>
-
-The discord and forum is shared with the haskell (tidal) and python (vortex) siblings of this project.
-
-We also have a mastodon account: <a rel="me" href="https://social.toplap.org/@strudel">social.toplap.org/@strudel</a>
+Given the cavalier approach to developing this fork, I don't intent to send strudel any pull requests. But you're welcome to excise ideas or code for those purposes.
