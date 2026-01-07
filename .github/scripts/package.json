@@ -1,9 +1,0 @@
-{
-  "name": "security-check-scripts",
-  "version": "1.0.0",
-  "type": "module",
-  "description": "Security check scripts for GitHub Actions",
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.32.1"
-  }
-}

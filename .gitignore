@@ -152,8 +152,5 @@ samples/*
 .idea/
 .playwright-mcp/
 
-# GitHub Actions security check outputs
-.github/security-findings.md
-
 # Other
 website/.vercel/

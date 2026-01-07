@@ -40,14 +40,31 @@ jobs:
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
 
-            Please review this pull request and provide feedback on:
+            Please review this pull request with a focus on security and code quality. Provide feedback on:
+
+            **Security Analysis (Priority):**
+            - Command injection vulnerabilities
+            - SQL injection and XSS
+            - Path traversal and insecure deserialization
+            - Hardcoded secrets or API keys
+            - Unsafe dynamic code execution (eval, etc.)
+            - Insecure cryptographic practices
+            - Authentication/authorization issues
+            - Insecure file operations and missing input validation
+            - CSRF vulnerabilities and exposed sensitive data
+            - Dependency vulnerabilities
+            - Unsafe regex patterns (ReDoS)
+
+            **Code Quality:**
             - Code quality and best practices
             - Potential bugs or issues
             - Performance considerations
-            - Security concerns
             - Test coverage
 
-            Use the repository's CLAUDE.md for guidance on style and conventions. Be constructive and helpful in your feedback.
+            Use the repository's CLAUDE.md for guidance on style and conventions.
+
+            Format your review with clear severity levels (Critical/High/Medium/Low) for any security issues found.
+            Be constructive and helpful in your feedback.
 
             Use `gh pr comment` with your Bash tool to leave your review as a comment on the PR.
 

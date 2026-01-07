@@ -6,7 +6,7 @@
 
 ## New features and changes from `strudel`
 
-TODO
+- Vercel deploy support: Astro Vercel adapter + `vercel.json`. For server output, leave Vercel Output Directory empty.
 
 ## Running Locally
 
