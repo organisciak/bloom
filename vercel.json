@@ -2,6 +2,6 @@
   "version": 2,
   "framework": "astro",
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter @strudel/website build",
+  "buildCommand": "pnpm build",
   "outputDirectory": "website/dist"
 }
