@@ -1,11 +1,54 @@
+const coerceText = (value: any) => {
+  if (typeof value === 'string') {
+    return value.trim();
+  }
+  if (value && typeof value === 'object') {
+    const direct = value.text ?? value.content ?? value.value;
+    if (typeof direct === 'string') {
+      return direct.trim();
+    }
+  }
+  return '';
+};
+
+const pickFirstText = (item: any, keys: string[]) => {
+  for (const key of keys) {
+    const text = coerceText(item?.[key]);
+    if (text) {
+      return text;
+    }
+  }
+  return '';
+};
+
 export const normalizeSuggestions = (value: any) => {
   const list = Array.isArray(value) ? value : [];
+  const promptKeys = [
+    'prompt',
+    'text',
+    'suggestion',
+    'instruction',
+    'edit',
+    'change',
+    'tweak',
+    'idea',
+  ];
   return list
     .map((item) => {
-      const title = typeof item?.title === 'string' ? item.title.trim() : '';
-      const prompt = typeof item?.prompt === 'string' ? item.prompt.trim() : '';
-      const why = typeof item?.why === 'string' ? item.why.trim() : '';
-      return { title, prompt, why };
+      if (typeof item === 'string') {
+        const text = item.trim();
+        return { title: text, prompt: text, why: '' };
+      }
+      const title = pickFirstText(item, ['title', 'label', 'name']);
+      const hasPromptKey =
+        item && typeof item === 'object'
+          ? promptKeys.some((key) => Object.prototype.hasOwnProperty.call(item, key))
+          : false;
+      const prompt = pickFirstText(item, promptKeys);
+      const why = pickFirstText(item, ['why', 'reason', 'because', 'explanation']);
+      const resolvedPrompt = prompt || (!hasPromptKey ? title : '');
+      const resolvedTitle = title || resolvedPrompt;
+      return { title: resolvedTitle, prompt: resolvedPrompt, why };
     })
     .filter((item) => item.prompt.length > 0)
     .slice(0, 5);
@@ -49,7 +92,8 @@ export const deriveSuggestionsFromText = (text: string) => {
 };
 
 export const buildSuggestionsFromText = (text: string, parsed: any) => {
-  const suggestionsSource = parsed?.suggestions ?? parsed;
+  const suggestionsSource =
+    parsed?.suggestions ?? parsed?.items ?? parsed?.ideas ?? parsed?.tweaks ?? parsed?.recommendations ?? parsed;
   let suggestions = normalizeSuggestions(suggestionsSource);
   if (!suggestions.length) {
     suggestions = deriveSuggestionsFromText(text);

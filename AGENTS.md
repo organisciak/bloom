@@ -173,48 +173,13 @@ bd import -i .beads/issues.jsonl  # Sync SQLite cache
 ```
 
 ### Syncing with Upstream Strudel
-
-This fork tracks the original Strudel repository for updates. The remotes are configured as:
-- `origin` - Your fork at https://github.com/organisciak/Bloom.git (push and pull)
-- `upstream` - Original Strudel at https://codeberg.org/uzu/strudel.git (pull only, never push)
-
-**Important**: Never push to `upstream`. It's configured for pulling updates only.
-
 #### Merge from upstream (recommended for most cases)
 
 ```bash
-# Fetch latest changes from upstream
 git fetch upstream
-
-# Merge upstream main into your current branch
 git merge upstream/main
-
-# Resolve any conflicts if they occur
-# Then commit the merge
-
-# Push to your fork
 git push origin main
 ```
-
-#### Rebase from upstream (cleaner history, use with caution)
-
-```bash
-# Fetch latest changes from upstream
-git fetch upstream
-
-# Rebase your current branch onto upstream main
-git rebase upstream/main
-
-# Resolve conflicts one commit at a time if they occur
-# Use git rebase --continue after resolving each conflict
-
-# Force push to your fork (only if you haven't shared this branch)
-git push origin main --force-with-lease
-```
-
-**When to use merge vs rebase:**
-- **Merge**: Safer for shared branches. Preserves complete history. Use when collaborating or unsure.
-- **Rebase**: Cleaner linear history. Only use on branches you haven't shared, or coordinate with collaborators first.
 
 **After syncing:**
 1. Run tests: `pnpm run test`
