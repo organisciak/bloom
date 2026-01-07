@@ -151,3 +151,6 @@ samples/*
 !samples/README.md
 .idea/
 .playwright-mcp/
+
+# GitHub Actions security check outputs
+.github/security-findings.md
