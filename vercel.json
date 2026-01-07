@@ -2,5 +2,5 @@
   "version": 2,
   "framework": "astro",
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm build"
+  "buildCommand": "pnpm build && mkdir -p .vercel && cp -R website/.vercel/output .vercel/output"
 }
