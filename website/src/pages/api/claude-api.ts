@@ -5,7 +5,7 @@ import { getServerEnv } from './env';
 export const prerender = false;
 
 const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
-const DEFAULT_MAX_TOKENS = 2048;
+const DEFAULT_MAX_TOKENS = 8192;
 
 const buildUserPrompt = ({
   code,
