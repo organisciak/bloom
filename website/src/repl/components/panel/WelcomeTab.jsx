@@ -42,7 +42,7 @@ export function WelcomeTab({ context }) {
         , the brilliant JavaScript implementation of{' '}
         <a href="https://tidalcycles.org/" target="_blank">
           tidalcycles
-        </a>
+        </a>.
 
         Both projects are free/open source software
         under the{' '}
