@@ -9,8 +9,11 @@ export function WelcomeTab({ context }) {
     <div className="prose dark:prose-invert min-w-full pt-2 font-sans pb-8 px-4 " style={{ fontFamily }}>
       <h3>꩜ welcome</h3>
       <p>
-        You have found <span className="underline">strudel</span>, a new live coding platform to write dynamic music
-        pieces in the browser! It is free and open-source and made for beginners and experts alike. To get started:
+        You have found <span className="underline">bloom</span>, the ugly step-fork of the excellent{' '}
+        <a href="https://strudel.cc" target="_blank">strudel</a> live coding platform.
+        Write dynamic music in the browser, sprinkled with a few experimental features.
+        
+        To get started:
         <br />
         <br />
         <span className="underline">1. hit play</span> - <span className="underline">2. change something</span> -{' '}
@@ -32,25 +35,33 @@ export function WelcomeTab({ context }) {
       </p>
       <h3>꩜ about</h3>
       <p>
-        strudel is a JavaScript version of{' '}
+        bloom is built on{' '}
+        <a href="https://strudel.cc" target="_blank">
+          strudel
+        </a>
+        , the brilliant JavaScript implementation of{' '}
         <a href="https://tidalcycles.org/" target="_blank">
           tidalcycles
         </a>
-        , which is a popular live coding language for music, written in Haskell. Strudel is free/open source software:
-        you can redistribute and/or modify it under the terms of the{' '}
+
+        Both projects are free/open source software
+        under the{' '}
         <a href="https://codeberg.org/uzu/strudel/src/branch/main/LICENSE" target="_blank">
           GNU Affero General Public License
         </a>
-        . You can find the source code at{' '}
+        . Find strudel's source at{' '}
         <a href="https://codeberg.org/uzu/strudel" target="_blank">
           codeberg
         </a>
-        . You can also find <a href="https://github.com/felixroos/dough-samples/blob/main/README.md">licensing info</a>{' '}
-        for the default sound banks there. Please consider to{' '}
+        , bloom's fork on{' '}
+        <a href="https://github.com/organisciak/live-coding-music" target="_blank">
+          github
+        </a>
+        , and <a href="https://github.com/felixroos/dough-samples/blob/main/README.md">licensing info</a>{' '}
+        for the default sound banks. Please consider{' '}
         <a href="https://opencollective.com/tidalcycles" target="_blank">
-          support this project
-        </a>{' '}
-        to ensure ongoing development 💖
+          supporting strudel and tidalcycles
+        </a>
       </p>
     </div>
   );
