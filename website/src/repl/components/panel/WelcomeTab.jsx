@@ -1,10 +1,13 @@
-import { useSettings } from '@src/settings.mjs';
+import { setActiveFooter, setIsPanelOpened, useSettings } from '@src/settings.mjs';
+import { SpecialActionButton } from '../button/action-button.jsx';
+import { buildOpenComposeHandler } from '../../welcome_utils.mjs';
 
 const { BASE_URL } = import.meta.env;
 const baseNoTrailing = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
 
 export function WelcomeTab({ context }) {
   const { fontFamily } = useSettings();
+  const handleOpenCompose = buildOpenComposeHandler(setActiveFooter, setIsPanelOpened);
   return (
     <div className="prose dark:prose-invert min-w-full pt-2 font-sans pb-8 px-4 " style={{ fontFamily }}>
       <h3>꩜ welcome</h3>
@@ -27,7 +30,16 @@ export function WelcomeTab({ context }) {
         <a href={`${baseNoTrailing}/workshop/getting-started/`} target="_blank">
           interactive tutorial
         </a>
-        . Also feel free to join the{' '}
+        , or generate a composition and hit play.
+      </p>
+      <div className="mt-2 flex flex-col gap-2">
+        <SpecialActionButton label="Generate composition" onClick={handleOpenCompose} />
+        <p className="text-sm text-foreground opacity-80">
+          Tip: type <code>/</code> in the editor to see tasks and commands for inline edits, suggestions, and new sections.
+        </p>
+      </div>
+      <p>
+        Also feel free to join the{' '}
         <a href="https://discord.com/invite/HGEdXmRkzT" target="_blank">
           discord channel
         </a>{' '}

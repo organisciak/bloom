@@ -23,7 +23,7 @@ export default function ReplEditor(Props) {
         <Code containerRef={containerRef} editorRef={editorRef} init={init} />
         {!isZen && panelPosition === 'right' && <VerticalPanel context={context} />}
       </div>
-      <UserFacingErrorMessage error={error} />
+      <UserFacingErrorMessage error={error} context={context} />
       {!isZen && panelPosition === 'bottom' && <HorizontalPanel context={context} />}
     </div>
   );

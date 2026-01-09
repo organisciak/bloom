@@ -19,7 +19,7 @@ export default function EmbeddedReplEditor(Props) {
       <div className="grow flex relative overflow-hidden">
         <Code containerRef={containerRef} editorRef={editorRef} init={init} />
       </div>
-      <UserFacingErrorMessage error={error} />
+      <UserFacingErrorMessage error={error} context={context} />
     </div>
   );
 }
