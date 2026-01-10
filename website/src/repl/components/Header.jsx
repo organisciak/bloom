@@ -226,28 +226,6 @@ export function Header({ context, embedded = false }) {
           </button>
           {!isEmbedded && (
             <div
-              className="header-tempo"
-              title={tempoCpm ? `tempo ${tempoCpm} cpm` : 'tempo'}
-              style={{ '--pulse-duration': `${pulseDurationMs}ms` }}
-            >
-              <span
-                className={cx(
-                  'header-pulse-dot',
-                  (!started || isCSSAnimationDisabled) && 'header-pulse-dot--idle',
-                )}
-              />
-              <span className="header-tempo-value">{tempoCpm ?? '--'}</span>
-              <span className="header-tempo-label">cpm</span>
-            </div>
-          )}
-          {!isEmbedded && (
-            <div className="header-timer" title="performance timer">
-              <span className="header-timer-label">time</span>
-              <span className="header-timer-value">{elapsedLabel}</span>
-            </div>
-          )}
-          {!isEmbedded && (
-            <div
               className={cx(
                 'header-status',
                 statusTone === 'good' && 'header-status--good',
