@@ -9,7 +9,6 @@ import { useEffect, useRef, useState } from 'react';
 import { PreviewModal } from './PreviewModal';
 import { AutosaveModal } from './AutosaveModal';
 import { pickRandomPattern } from '../random_utils.mjs';
-import { pickIdeaRecipe, ideaRecipes } from '../idea_recipes.mjs';
 import { pickNudgeRecipe, nudgeRecipes } from '../nudge_recipes.mjs';
 import { getFavoritePatterns, userPattern } from '../../user_pattern_utils.mjs';
 
@@ -27,7 +26,6 @@ export function Header({ context, embedded = false }) {
     handleShuffle,
     handleNudge,
     handleMood,
-    handleIdea,
     handleSnapshot,
     handleSwapSnapshot,
     handleRewind,
@@ -57,7 +55,6 @@ export function Header({ context, embedded = false }) {
   const [preview, setPreview] = useState({ isOpen: false, title: '', code: '', onApply: null, onTry: null });
   const extrasRef = useRef(null);
   const lastRandomIdRef = useRef(null);
-  const lastIdeaIdRef = useRef(null);
   const lastNudgeIdRef = useRef(null);
 
   // Check if random button should be disabled
@@ -109,27 +106,6 @@ export function Header({ context, embedded = false }) {
     // Automatically apply the random pattern without confirmation
     context.editorRef.current?.setCode(patternData.code);
     context.editorRef.current?.evaluate();
-  };
-
-  const handleIdeaPreview = () => {
-    const recipe = pickIdeaRecipe(ideaRecipes, lastIdeaIdRef.current);
-    if (!recipe) {
-      handleIdea(); // Fall back to original handler
-      return;
-    }
-    lastIdeaIdRef.current = recipe.id;
-
-    setPreview({
-      isOpen: true,
-      title: `Idea: ${recipe.title}`,
-      code: recipe.code,
-      onApply: () => {
-        // Apply this specific idea recipe
-        context.editorRef.current?.setCode(recipe.code);
-        context.editorRef.current?.evaluate();
-      },
-      onTry: null,
-    });
   };
 
   const handleNudgePreview = () => {
@@ -342,15 +318,6 @@ export function Header({ context, embedded = false }) {
               disabled={!hasPatterns()}
             >
               <span>random</span>
-            </button>
-          )}
-          {!isEmbedded && (
-            <button
-              title="idea deck - preview before applying"
-              className="hover:opacity-50 p-2 flex items-center space-x-1"
-              onClick={handleIdeaPreview}
-            >
-              <span>idea</span>
             </button>
           )}
           {!isEmbedded && (
