@@ -140,18 +140,10 @@ export function Header({ context, embedded = false }) {
     }
     lastNudgeIdRef.current = recipe.id;
 
-    setPreview({
-      isOpen: true,
-      title: `Nudge: ${recipe.title}`,
-      code: recipe.code,
-      onApply: () => {
-        // Append this specific nudge recipe
-        const prefix = context.editorRef.current?.code?.length ? '\n\n' : '';
-        context.editorRef.current?.appendCode(`${prefix}${recipe.code}`);
-        context.editorRef.current?.evaluate();
-      },
-      onTry: null,
-    });
+    // Automatically append the nudge recipe without confirmation
+    const prefix = context.editorRef.current?.code?.length ? '\n\n' : '';
+    context.editorRef.current?.appendCode(`${prefix}${recipe.code}`);
+    context.editorRef.current?.evaluate();
   };
 
   useEffect(() => {
@@ -363,7 +355,7 @@ export function Header({ context, embedded = false }) {
           )}
           {!isEmbedded && (
             <button
-              title="micro-nudge - preview before applying"
+              title="micro-nudge"
               className="hover:opacity-50 p-2 flex items-center space-x-1"
               onClick={handleNudgePreview}
             >
