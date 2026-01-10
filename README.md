@@ -9,6 +9,7 @@
 - Vercel deploy support: Astro Vercel adapter + `vercel.json`. For server output, leave Vercel Output Directory empty.
 - Welcome tab: add a composition generator shortcut plus a tip about `/` tasks and commands.
 - AI fix button: When the error ribbon appears, a "Fix" button sends the error and code to AI for automatic correction.
+- Random button: load a favorite or pattern immediately without a preview confirmation.
 
 ## Running Locally
 

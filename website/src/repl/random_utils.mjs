@@ -13,3 +13,11 @@ export const pickRandomPattern = ({ favorites, patterns, avoidIds }) => {
   const index = Math.floor(Math.random() * candidates.length);
   return candidates[index];
 };
+
+export const getRandomButtonState = ({ favorites = [], patterns = [] } = {}) => {
+  const hasPatterns = favorites.length > 0 || patterns.length > 0;
+  return {
+    hasPatterns,
+    title: hasPatterns ? 'random (favorites first)' : 'no patterns saved yet',
+  };
+};

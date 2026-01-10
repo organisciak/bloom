@@ -8,7 +8,7 @@ import '../Repl.css';
 import { useEffect, useRef, useState } from 'react';
 import { PreviewModal } from './PreviewModal';
 import { AutosaveModal } from './AutosaveModal';
-import { pickRandomPattern } from '../random_utils.mjs';
+import { getRandomButtonState } from '../random_utils.mjs';
 import { pickNudgeRecipe, nudgeRecipes } from '../nudge_recipes.mjs';
 import { getFavoritePatterns, userPattern } from '../../user_pattern_utils.mjs';
 
@@ -54,15 +54,14 @@ export function Header({ context, embedded = false }) {
   const [extrasOpen, setExtrasOpen] = useState(false);
   const [preview, setPreview] = useState({ isOpen: false, title: '', code: '', onApply: null, onTry: null });
   const extrasRef = useRef(null);
-  const lastRandomIdRef = useRef(null);
   const lastNudgeIdRef = useRef(null);
 
-  // Check if random button should be disabled
-  const hasPatterns = () => {
-    const favorites = getFavoritePatterns();
-    const allPatterns = Object.values(userPattern.getAll());
-    return favorites.length > 0 || allPatterns.length > 0;
-  };
+  const favorites = getFavoritePatterns();
+  const allPatterns = Object.values(userPattern.getAll());
+  const { hasPatterns, title: randomTitle } = getRandomButtonState({
+    favorites,
+    patterns: allPatterns,
+  });
   const tempoCpm = Number.isFinite(tempoCps) ? Math.round(tempoCps * 60) : null;
   const pulseDurationMs = tempoCps ? Math.max(120, Math.round(1000 / tempoCps)) : 1000;
   const elapsedLabel = formatElapsed(elapsedMs);
@@ -85,27 +84,6 @@ export function Header({ context, embedded = false }) {
   const handleExtrasAction = (action) => () => {
     action?.();
     closeExtras();
-  };
-
-  const handleRandomPreview = () => {
-    const favorites = getFavoritePatterns();
-    const allPatterns = Object.values(userPattern.getAll());
-    if (!favorites.length && !allPatterns.length) {
-      handleShuffle(); // Fall back to original handler which shows the message
-      return;
-    }
-    const patternData = pickRandomPattern({
-      favorites: favorites,
-      patterns: allPatterns,
-      avoidIds: lastRandomIdRef.current ? [lastRandomIdRef.current] : [],
-    });
-    if (!patternData) return;
-
-    lastRandomIdRef.current = patternData.id;
-
-    // Automatically apply the random pattern without confirmation
-    context.editorRef.current?.setCode(patternData.code);
-    context.editorRef.current?.evaluate();
   };
 
   const handleNudgePreview = () => {
@@ -287,13 +265,13 @@ export function Header({ context, embedded = false }) {
           )}
           {!isEmbedded && (
             <button
-              title={hasPatterns() ? "random (favorites first)" : "no patterns saved yet"}
+              title={randomTitle}
               className={cx(
                 "p-2 flex items-center space-x-1",
-                hasPatterns() ? "hover:opacity-50" : "opacity-30 cursor-not-allowed"
+                hasPatterns ? "hover:opacity-50" : "opacity-30 cursor-not-allowed"
               )}
-              onClick={handleRandomPreview}
-              disabled={!hasPatterns()}
+              onClick={handleShuffle}
+              disabled={!hasPatterns}
             >
               <span>random</span>
             </button>
