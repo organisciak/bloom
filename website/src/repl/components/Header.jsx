@@ -105,19 +105,10 @@ export function Header({ context, embedded = false }) {
     if (!patternData) return;
 
     lastRandomIdRef.current = patternData.id;
-    const label = favorites.length ? 'favorite' : 'pattern';
 
-    setPreview({
-      isOpen: true,
-      title: `Random ${label}`,
-      code: patternData.code,
-      onApply: () => {
-        // Apply this specific pattern that was previewed
-        context.editorRef.current?.setCode(patternData.code);
-        context.editorRef.current?.evaluate();
-      },
-      onTry: null,
-    });
+    // Automatically apply the random pattern without confirmation
+    context.editorRef.current?.setCode(patternData.code);
+    context.editorRef.current?.evaluate();
   };
 
   const handleIdeaPreview = () => {
@@ -350,7 +341,7 @@ export function Header({ context, embedded = false }) {
           )}
           {!isEmbedded && (
             <button
-              title={hasPatterns() ? "random (favorites first) - preview before applying" : "no patterns saved yet"}
+              title={hasPatterns() ? "random (favorites first)" : "no patterns saved yet"}
               className={cx(
                 "p-2 flex items-center space-x-1",
                 hasPatterns() ? "hover:opacity-50" : "opacity-30 cursor-not-allowed"
