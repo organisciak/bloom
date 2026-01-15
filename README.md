@@ -6,10 +6,15 @@
 
 ## New features and changes from `strudel`
 
+- Workspace tab: open a local folder as a workspace (Chromium File System Access API), browse/search files, and keep recents.
+- Autosave + recovery when a workspace file has a newer autosave.
+- Autocomplete + reference upgrades: tooltips, Hydra docs, synth-aware examples, and `/` command completions.
+- Pattern QoL: favorite patterns, plus random/nudge actions apply immediately (no preview confirmation step).
+- UI simplifications: removed the Idea feature and Time/CPM displays from the header.
+- Optional Claude/OpenAI helpers: compose tab (prompt + context files), inline edits/suggestions, and an error-ribbon "Fix" button.
+- Welcome tab: composition generator shortcut plus a tip about `/` tasks and commands.
 - Vercel deploy support: Astro Vercel adapter + `vercel.json`. For server output, leave Vercel Output Directory empty.
-- Welcome tab: add a composition generator shortcut plus a tip about `/` tasks and commands.
-- AI fix button: When the error ribbon appears, a "Fix" button sends the error and code to AI for automatic correction.
-- Random button: load a favorite or pattern immediately without a preview confirmation.
+- Dev tooling: GitHub workflows for Claude-assisted review/security checks.
 
 ## Running Locally
 
@@ -26,8 +31,8 @@ After cloning the project, you can run the REPL locally:
    pnpm dev
    ```
 
-Optional local AI features (Claude/OpenAI):
-- Set `ANTHROPIC_API_KEY` to enable Claude inline edits and AI composition generation.
+Optional local Claude/OpenAI features:
+- Set `ANTHROPIC_API_KEY` to enable Claude inline edits, suggestions, code fixes, and composition generation.
 - Set `OPENAI_API_KEY` to enable OpenAI composition generation.
 - Optional: `ANTHROPIC_MODEL` (defaults to `claude-sonnet-4-5-20250929`) and `ANTHROPIC_MAX_TOKENS` (defaults to 2048).
 - Optional: `OPENAI_MODEL` (defaults to `gpt-5-mini`) and `OPENAI_MAX_TOKENS` (defaults to 2048).

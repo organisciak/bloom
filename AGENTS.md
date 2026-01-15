@@ -205,3 +205,6 @@ Run `bd stats` to see overall progress.
 - Export to JSONL before committing (or use git hooks)
 - Use `bd dep tree` to understand complex dependencies
 - Priority 0-1 issues are usually more important than 2-4
+
+
+After implementing larger features, update the `README.md` section, "## New features and changes from `strudel`".
