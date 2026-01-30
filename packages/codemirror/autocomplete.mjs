@@ -1,6 +1,7 @@
 import jsdoc from '../../doc.json';
 import hydraDocs from '../../hydra-docs.json';
-import { autocompletion } from '@codemirror/autocomplete';
+import { autocompletion, startCompletion } from '@codemirror/autocomplete';
+import { ViewPlugin } from '@codemirror/view';
 import { h } from './html';
 import { SLASH_COMMANDS } from './claude_commands.mjs';
 //TODO: fix tonal scale import
@@ -196,6 +197,20 @@ const chordSymbolCompletions = chordSymbols.map((symbol) => {
     type: 'chord-symbol',
   };
 });
+
+const SLASH_COMMAND_REGEX = /\/([\w-]*)$/;
+
+const matchSlashCommandPrefix = (lineText, cursor) => {
+  if (!lineText || cursor <= 0) return null;
+  const prefix = lineText.slice(0, cursor);
+  const match = prefix.match(SLASH_COMMAND_REGEX);
+  if (!match) return null;
+  const from = prefix.length - match[0].length;
+  if (from > 0 && !/\s/.test(prefix[from - 1])) {
+    return null;
+  }
+  return { from, to: prefix.length };
+};
 
 export const getSynonymDoc = (doc, synonym) => {
   const synonyms = doc.synonyms || [];
@@ -545,22 +560,34 @@ function chordHandler(context) {
 
 // Cached regex patterns for fallbackHandler
 const FALLBACK_WORD_REGEX = /\w*/;
-const SLASH_COMMAND_REGEX = /\/[\w-]*$/;
 
 function slashCommandHandler(context) {
-  const match = context.matchBefore(SLASH_COMMAND_REGEX);
+  const line = context.state.doc.lineAt(context.pos);
+  const match = matchSlashCommandPrefix(line.text, context.pos - line.from);
   if (!match) return null;
-  if (match.from > 0) {
-    const prevChar = context.state.sliceDoc(match.from - 1, match.from);
-    if (prevChar && !/\s/.test(prevChar)) {
-      return null;
-    }
-  }
   return {
-    from: match.from,
+    from: line.from + match.from,
     options: slashCompletions,
   };
 }
+
+const slashCommandTrigger = ViewPlugin.fromClass(
+  class {
+    update(update) {
+      if (!update.docChanged) return;
+      const hasUserInput = update.transactions.some(
+        (tr) => tr.isUserEvent('input') || tr.isUserEvent('input.type') || tr.isUserEvent('input.complete'),
+      );
+      if (!hasUserInput) return;
+      const { head, empty } = update.state.selection.main;
+      if (!empty) return;
+      const line = update.state.doc.lineAt(head);
+      const match = matchSlashCommandPrefix(line.text, head - line.from);
+      if (!match) return;
+      startCompletion(update.view);
+    }
+  },
+);
 
 function fallbackHandler(context) {
   const word = context.matchBefore(FALLBACK_WORD_REGEX);
@@ -596,7 +623,7 @@ export const strudelAutocomplete = (context) => {
 };
 
 export const isAutoCompletionEnabled = (enabled) =>
-  enabled ? [autocompletion({ override: [strudelAutocomplete], closeOnBlur: false })] : [];
+  enabled ? [autocompletion({ override: [strudelAutocomplete], closeOnBlur: false }), slashCommandTrigger] : [];
 
 export const __test__ = {
   buildSectionedOptions,
@@ -604,4 +631,5 @@ export const __test__ = {
   getPopularSounds,
   buildSlashCommandOptions,
   buildSlashDocOptions,
+  matchSlashCommandPrefix,
 };
