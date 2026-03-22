@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { BloomEngineProvider, useBloomEngine } from './BloomEngineContext';
+import FileSystemPicker from '../components/FileSystemPicker';
 
 // Rotary knob component
 function Knob({ label, value, min, max, onChange, unit = '' }) {
@@ -107,7 +108,7 @@ const DIRECTIONS = [
 ];
 
 function ControllerUI() {
-  const { started, toggle, tempo, tempoCps, setTempo, fileName, error, openFile, openWorkspace } = useBloomEngine();
+  const { started, toggle, tempo, tempoCps, setTempo, fileName, error, openFile, openWorkspace, autoUpdateEnabled, toggleAutoUpdate, autoUpdateDetected } = useBloomEngine();
 
   const [gain, setGain] = useState(80);
   const [filterCutoff, setFilterCutoff] = useState(100);
@@ -143,10 +144,15 @@ function ControllerUI() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 style={{ fontSize: '1rem', opacity: 0.5, margin: 0, fontWeight: 400 }}>bloom controller</h1>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button onClick={openFile} style={smallBtnStyle}>file</button>
-          <button onClick={openWorkspace} style={smallBtnStyle}>workspace</button>
-        </div>
+        <FileSystemPicker
+          fileName={fileName}
+          openFile={openFile}
+          openWorkspace={openWorkspace}
+          autoUpdateEnabled={autoUpdateEnabled}
+          toggleAutoUpdate={toggleAutoUpdate}
+          autoUpdateDetected={autoUpdateDetected}
+          compact
+        />
       </div>
 
       {/* Transport */}
@@ -168,7 +174,6 @@ function ControllerUI() {
         >
           {started ? 'stop' : 'play'}
         </button>
-        {fileName && <span style={{ fontSize: '0.8rem', opacity: 0.6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fileName}</span>}
         {error && <span style={{ fontSize: '0.7rem', color: '#f44' }}>error</span>}
       </div>
 
@@ -211,18 +216,6 @@ function ControllerUI() {
     </div>
   );
 }
-
-const smallBtnStyle = {
-  background: 'none',
-  border: '1px solid var(--foreground)',
-  color: 'var(--foreground)',
-  padding: '0.25rem 0.5rem',
-  borderRadius: '3px',
-  cursor: 'pointer',
-  fontFamily: 'monospace',
-  fontSize: '0.7rem',
-  opacity: 0.6,
-};
 
 export default function ControllerApp() {
   return (
