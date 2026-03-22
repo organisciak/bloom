@@ -43,6 +43,16 @@ Guidance for future LLMs working in this repo.
 - **No AI branding**: Don't label features as "AI" in the UI. Mention capabilities softly in documentation. Users shouldn't need to know or care about the implementation—the tool should simply work better.
 - **Seamless integration**: LLM-powered features should feel like natural parts of the creative workflow, not special or separate.
 
+## Development philosophy
+
+**Forward momentum over preservation.** This codebase moves fast and breaks things. Don't be precious about existing code. If a feature isn't working or isn't needed, remove it. If you have an idea, build it. We can always `git revert`.
+
+**No PRs required.** Just commit and push to main. No review process, no waiting. If it breaks, we fix it. The bias is toward action.
+
+**Bold changes welcome.** Rip out features, add experimental routes, refactor aggressively. The goal is a tool that feels alive and evolving, not a museum piece.
+
+**Multi-app architecture.** Bloom is a platform, not a single app. The pattern engine (Superdough) and file watcher are shared infrastructure. Create new React routes freely as experimental interfaces: `/headless`, `/controller`, `/visualizer`, whatever. Each route is a mini-app that can have its own aesthetic and purpose.
+
 ## Working style
 - Check in with the user often while building features to confirm direction.
 - NEVER push to `upstream`, just `origin`
@@ -156,6 +166,8 @@ Only `blocks` dependencies affect the ready work queue.
 
 ### Git Workflow
 
+**Just commit and push.** No branches, no PRs. Direct to main.
+
 ```bash
 # Make changes
 git add <files>
@@ -164,12 +176,21 @@ git add <files>
 bd export -o .beads/issues.jsonl
 git add .beads/issues.jsonl
 
-# Commit
+# Commit and push
 git commit -m "Your message"
+git push
 
 # After pull
 git pull
 bd import -i .beads/issues.jsonl  # Sync SQLite cache
+```
+
+If working in a **worktree** for parallel work, merge to main when done:
+```bash
+git checkout main
+git merge feat/your-branch
+git push
+git worktree remove /tmp/your-worktree
 ```
 
 ### Syncing with Upstream Strudel
