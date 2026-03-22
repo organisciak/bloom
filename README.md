@@ -16,6 +16,7 @@
 - Welcome tab: composition generator shortcut plus a tip about `/` tasks and commands.
 - Vercel deploy support: Astro Vercel adapter + `vercel.json`. For server output, leave Vercel Output Directory empty.
 - Dev tooling: GitHub workflows for Claude-assisted review/security checks.
+- Controller mini-app (`/controller`): standalone MIDI-style pad controller with draggable knobs (tempo, gain, cutoff, swing, reverb, delay), suggestion pads that modify patterns via the Claude API, and File System Access API sync for live-editing `.strudel` files. Responsive for tablet/phone use as a remote control.
 
 ## Running Locally
 
