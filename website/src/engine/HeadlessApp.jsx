@@ -1,7 +1,8 @@
 import { BloomEngineProvider, useBloomEngine } from './BloomEngineContext';
+import FileSystemPicker from '../components/FileSystemPicker';
 
 function HeadlessUI() {
-  const { started, toggle, tempo, fileName, code, error, openFile, autoUpdateEnabled, toggleAutoUpdate, autoUpdateDetected } =
+  const { started, toggle, tempo, fileName, code, error, openFile, openWorkspace, autoUpdateEnabled, toggleAutoUpdate, autoUpdateDetected } =
     useBloomEngine();
 
   return (
@@ -44,27 +45,20 @@ function HeadlessUI() {
         </div>
       )}
 
-      {fileName && (
-        <div style={{ fontSize: '0.9rem', opacity: 0.7, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {fileName}
-          {autoUpdateDetected && <span style={{ color: 'var(--caret)' }}>syncing</span>}
-        </div>
-      )}
-
       {error && (
         <div style={{ fontSize: '0.8rem', color: '#f44', maxWidth: '30rem', textAlign: 'center' }}>
           {error?.message || String(error)}
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-        <button onClick={openFile} style={linkStyle}>
-          open file
-        </button>
-        <button onClick={toggleAutoUpdate} style={linkStyle}>
-          auto-update: {autoUpdateEnabled ? 'on' : 'off'}
-        </button>
-      </div>
+      <FileSystemPicker
+        fileName={fileName}
+        openFile={openFile}
+        openWorkspace={openWorkspace}
+        autoUpdateEnabled={autoUpdateEnabled}
+        toggleAutoUpdate={toggleAutoUpdate}
+        autoUpdateDetected={autoUpdateDetected}
+      />
 
       {code && (
         <pre
@@ -86,18 +80,6 @@ function HeadlessUI() {
     </div>
   );
 }
-
-const linkStyle = {
-  background: 'none',
-  border: '1px solid var(--foreground)',
-  color: 'var(--foreground)',
-  padding: '0.4rem 0.8rem',
-  borderRadius: '4px',
-  cursor: 'pointer',
-  fontFamily: 'monospace',
-  fontSize: '0.8rem',
-  opacity: 0.7,
-};
 
 export default function HeadlessApp() {
   return (

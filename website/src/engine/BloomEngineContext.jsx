@@ -11,7 +11,7 @@ Foundation, either version 3 of the License, or (at your option) any later versi
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { logger, silence } from '@strudel/core';
-import { evaluate, transpiler } from '@strudel/transpiler';
+import { transpiler } from '@strudel/transpiler';
 import {
   getAudioContextCurrentTime,
   webaudioOutput,
@@ -99,16 +99,10 @@ export function BloomEngineProvider({ children }) {
       if (!replRef.current) return;
       await Promise.all([modulesLoading, presetsLoading]);
       await audioReady;
-      try {
-        const { pattern } = await evaluate(newCode);
-        replRef.current.scheduler.setPattern(pattern, true);
-        setCode(newCode);
-        setTempoCps(replRef.current.scheduler.cps ?? 0.5);
-        setError(null);
-      } catch (err) {
-        setError(err);
-        logger(`[engine] eval error: ${err?.message}`, 'error');
-      }
+      // Use the repl's evaluate so injectPatternMethods() runs,
+      // registering cpm, setCps, setcpm, hush, etc. into global scope
+      await replRef.current.evaluate(newCode);
+      setTempoCps(replRef.current.scheduler.cps ?? 0.5);
     },
     [],
   );
