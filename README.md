@@ -16,6 +16,9 @@
 - Welcome tab: composition generator shortcut plus a tip about `/` tasks and commands.
 - Vercel deploy support: Astro Vercel adapter + `vercel.json`. For server output, leave Vercel Output Directory empty.
 - Dev tooling: GitHub workflows for Claude-assisted review/security checks.
+- **Multi-app architecture**: bloom is now a platform of creative interfaces, not just a REPL. A shared engine context (`BloomEngineProvider`) lets any route use the pattern engine and file watcher without duplicating logic. New mini-app routes:
+  - `/headless` — minimal play/stop, tempo display, and file watcher. Perfect for performing with an external editor.
+  - `/controller` — CSS MIDI-style interface with rotary knobs (tempo, gain, filter) and direction pads (placeholder for AI-suggested directions).
 
 ## Running Locally
 

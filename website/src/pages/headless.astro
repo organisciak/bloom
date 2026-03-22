@@ -1,0 +1,14 @@
+---
+import HeadCommon from '../components/HeadCommon.astro';
+import HeadlessApp from '../engine/HeadlessApp';
+---
+
+<html lang="en" class="m-0 dark">
+  <head>
+    <HeadCommon />
+    <title>bloom headless</title>
+  </head>
+  <body class="h-app-height bg-background m-0">
+    <HeadlessApp client:only="react" />
+  </body>
+</html>

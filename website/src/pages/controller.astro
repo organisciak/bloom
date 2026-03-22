@@ -1,0 +1,14 @@
+---
+import HeadCommon from '../components/HeadCommon.astro';
+import ControllerApp from '../engine/ControllerApp';
+---
+
+<html lang="en" class="m-0 dark">
+  <head>
+    <HeadCommon />
+    <title>bloom controller</title>
+  </head>
+  <body class="h-app-height bg-background m-0">
+    <ControllerApp client:only="react" />
+  </body>
+</html>
