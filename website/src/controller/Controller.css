@@ -1,0 +1,321 @@
+/* bloom controller — MIDI hardware aesthetic */
+
+.ctrl-root {
+  min-height: 100vh;
+  background: #1a1a1e;
+  color: #e0e0e0;
+  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ---- Header bar ---- */
+.ctrl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid #2a2a30;
+  flex-shrink: 0;
+}
+
+.ctrl-logo {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ffcc00;
+}
+
+.ctrl-file-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ctrl-file-name {
+  font-size: 11px;
+  color: #888;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ctrl-open-btn {
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #2a2a30;
+  color: #ccc;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.ctrl-open-btn:hover {
+  background: #3a3a40;
+}
+
+.ctrl-status {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ctrl-status--idle { color: #666; }
+.ctrl-status--synced { color: #4caf50; }
+.ctrl-status--loading { color: #ffcc00; }
+.ctrl-status--error { color: #ef5350; }
+
+/* ---- Main content area ---- */
+.ctrl-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px 20px 40px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ---- Section labels ---- */
+.ctrl-section-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+/* ---- Knobs grid ---- */
+.ctrl-knobs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+.ctrl-knob-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  touch-action: none;
+}
+
+.ctrl-knob {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #3a3a42, #222228);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px rgba(255, 255, 255, 0.06);
+  cursor: grab;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ctrl-knob:active { cursor: grabbing; }
+
+.ctrl-knob-body {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.ctrl-knob-ring {
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 2px solid #333;
+  pointer-events: none;
+}
+
+.ctrl-knob-indicator {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.ctrl-knob-tick {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 10px;
+  background: #ffcc00;
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(255, 204, 0, 0.5);
+}
+
+.ctrl-knob-value {
+  font-size: 11px;
+  color: #aaa;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.ctrl-knob-unit {
+  font-size: 9px;
+  color: #666;
+  margin-left: 2px;
+}
+
+.ctrl-knob-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #666;
+  text-align: center;
+}
+
+/* ---- Pad grid ---- */
+.ctrl-pads {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.ctrl-pad {
+  position: relative;
+  aspect-ratio: 1.4;
+  border: 1px solid #333;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #28282e, #1e1e24);
+  color: #bbb;
+  font-family: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 12px;
+  transition: all 0.12s ease;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ctrl-pad:hover:not(:disabled) {
+  border-color: #555;
+  background: linear-gradient(145deg, #32323a, #26262c);
+  color: #fff;
+}
+
+.ctrl-pad:active:not(:disabled),
+.ctrl-pad--active {
+  border-color: #ffcc00;
+  background: linear-gradient(145deg, #3a3520, #2a2a1e);
+  color: #ffcc00;
+  box-shadow:
+    0 0 16px rgba(255, 204, 0, 0.15),
+    inset 0 1px 0 rgba(255, 204, 0, 0.1);
+}
+
+.ctrl-pad--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ctrl-pad-label {
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+}
+
+.ctrl-pad-spinner {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 10px;
+  height: 10px;
+  border: 2px solid transparent;
+  border-top-color: #ffcc00;
+  border-radius: 50%;
+  animation: ctrl-spin 0.6s linear infinite;
+}
+
+@keyframes ctrl-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Error toast ---- */
+.ctrl-error {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2a1a1a;
+  border: 1px solid #ef5350;
+  color: #ef5350;
+  font-size: 12px;
+  padding: 8px 20px;
+  border-radius: 6px;
+  z-index: 100;
+  animation: ctrl-fade-in 0.2s ease;
+}
+
+@keyframes ctrl-fade-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* ---- Code preview ---- */
+.ctrl-code-preview {
+  background: #16161a;
+  border: 1px solid #2a2a30;
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #999;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.ctrl-empty-hint {
+  text-align: center;
+  color: #555;
+  font-size: 12px;
+  padding: 40px 20px;
+  line-height: 1.8;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+  .ctrl-header { padding: 10px 14px; }
+  .ctrl-body { padding: 16px 14px 32px; }
+  .ctrl-knobs { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .ctrl-pads { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .ctrl-knob { width: 56px; height: 56px; }
+  .ctrl-knob-body { width: 46px; height: 46px; }
+  .ctrl-pad { font-size: 10px; padding: 10px; }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .ctrl-knobs { grid-template-columns: repeat(3, 1fr); }
+  .ctrl-pads { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 901px) {
+  .ctrl-pads { grid-template-columns: repeat(5, 1fr); }
+}
