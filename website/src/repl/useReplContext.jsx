@@ -55,6 +55,7 @@ import { swapSnapshot, hasSnapshot } from './snapshot_utils.mjs';
 import { buildMetadataBlock, hasMetadata, prependMetadataBlock } from './metadata_utils.mjs';
 import { toggleSnippet } from './snippet_utils.mjs';
 import { resolveWorkspaceFileHandle, scanWorkspaceFiles } from './workspace_fs.mjs';
+import { createFileWatcher } from './file_watcher.mjs';
 import {
   clearWorkspaceHandle,
   loadWorkspaceHandle,
@@ -237,6 +238,9 @@ export function useReplContext() {
     autosaveTime: null,
     fileTime: null,
   });
+  const [autoUpdateEnabled, setAutoUpdateEnabled] = useState(false);
+  const [autoUpdateDetected, setAutoUpdateDetected] = useState(false);
+  const fileWatcherRef = useRef(null);
 
   // this can be simplified once SettingsTab has been refactored to change codemirrorSettings directly!
   // this will be the case when the main repl is being replaced
@@ -566,6 +570,41 @@ export function useReplContext() {
     };
   }, [replState.code, isDirty, pending, workspaceActivePath, workspaceName]);
 
+  // file watcher: poll for external changes when auto-update is enabled
+  useEffect(() => {
+    if (!autoUpdateEnabled || !fileHandleRef.current) {
+      if (fileWatcherRef.current) {
+        fileWatcherRef.current.stop();
+        fileWatcherRef.current = null;
+      }
+      return;
+    }
+    const watcher = createFileWatcher({
+      onChanged: (text) => {
+        const currentCode = editorRef.current?.code ?? editorRef.current?.editor?.state?.doc?.toString?.() ?? '';
+        if (text === currentCode) return;
+        setAutoUpdateDetected(true);
+        editorRef.current?.setCode(text);
+        setDocumentTitle(text);
+        if (started) {
+          editorRef.current?.evaluate();
+        }
+        logger('[fs] file updated externally — reloaded', 'highlight');
+        announce('file updated', 'good');
+        // clear indicator after a moment
+        setTimeout(() => setAutoUpdateDetected(false), 1500);
+      },
+      pollInterval: 500,
+      debounceMs: 300,
+    });
+    watcher.start(fileHandleRef.current);
+    fileWatcherRef.current = watcher;
+    return () => {
+      watcher.stop();
+      fileWatcherRef.current = null;
+    };
+  }, [autoUpdateEnabled, workspaceActivePath, started, announce]);
+
   const handleOpenFile = async () => {
     if (!isFileSystemAccessSupported()) {
       logger('[fs] File System Access API not supported in this browser.', 'highlight');
@@ -773,6 +812,19 @@ export function useReplContext() {
       announce('workspace save failed', 'warn');
     }
   };
+
+  const handleToggleAutoUpdate = useCallback(() => {
+    setAutoUpdateEnabled((prev) => {
+      const next = !prev;
+      if (next) {
+        announce('auto-update on', 'good');
+      } else {
+        announce('auto-update off', 'neutral');
+        setAutoUpdateDetected(false);
+      }
+      return next;
+    });
+  }, [announce]);
 
   const handleWorkspaceRenameFile = async (entry, nextName) => {
     if (!entry?.handle || !entry?.directoryHandle) return;
@@ -1157,6 +1209,9 @@ export function useReplContext() {
     workspaceError,
     workspaceActivePath,
     workspaceRecents,
+    autoUpdateEnabled,
+    autoUpdateDetected,
+    handleToggleAutoUpdate,
     autosavePrompt,
     handleAutosaveRestore,
     handleAutosaveDismiss,

@@ -1225,3 +1225,34 @@ button:not(:disabled):active,
   border-radius: 4px;
   font-family: inherit;
 }
+
+.workspace-auto-update-toggle {
+  background: transparent;
+  border: 1px solid var(--lineHighlight);
+  color: var(--foreground);
+  opacity: 0.6;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 11px;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.workspace-auto-update-toggle:hover {
+  opacity: 0.9;
+}
+.workspace-auto-update-toggle--on {
+  opacity: 1;
+  border-color: var(--caret);
+  color: var(--caret);
+}
+.workspace-auto-update-flash {
+  margin-left: 8px;
+  font-size: 10px;
+  color: var(--caret);
+  animation: auto-update-pulse 1.5s ease-out;
+}
+@keyframes auto-update-pulse {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}

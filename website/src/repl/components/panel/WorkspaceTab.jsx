@@ -23,6 +23,9 @@ export function WorkspaceTab({ context }) {
     handleWorkspaceRenameFile,
     handleWorkspaceForget,
     handleWorkspaceClearRecents,
+    autoUpdateEnabled,
+    autoUpdateDetected,
+    handleToggleAutoUpdate,
   } = context;
   const [renamingPath, setRenamingPath] = useState('');
   const [renameValue, setRenameValue] = useState('');
@@ -195,6 +198,20 @@ export function WorkspaceTab({ context }) {
           <div className="workspace-meta-line">
             <span className="workspace-meta-label">Extensions</span>
             <span className="workspace-meta-value">{workspaceFileExtensions.join(', ')}</span>
+          </div>
+          <div className="workspace-meta-line">
+            <span className="workspace-meta-label">Auto-update</span>
+            <span className="workspace-meta-value">
+              <button
+                className={cx('workspace-auto-update-toggle', autoUpdateEnabled && 'workspace-auto-update-toggle--on')}
+                onClick={handleToggleAutoUpdate}
+                title="Reload file automatically when it changes on disk"
+                aria-pressed={autoUpdateEnabled}
+              >
+                {autoUpdateEnabled ? 'on' : 'off'}
+              </button>
+              {autoUpdateDetected && <span className="workspace-auto-update-flash">updated</span>}
+            </span>
           </div>
           {workspaceName && workspacePermission !== 'granted' && (
             <ActionButton

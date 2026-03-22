@@ -7,6 +7,7 @@
 ## New features and changes from `strudel`
 
 - Workspace tab: open a local folder as a workspace (Chromium File System Access API), browse/search files, and keep recents.
+- Auto-update: toggle in the workspace tab watches the open file for external changes and reloads/re-evaluates automatically (500ms polling, 300ms debounce). Great for pairing with external editors like Claude Code.
 - Autosave + recovery when a workspace file has a newer autosave.
 - Autocomplete + reference upgrades: tooltips, Hydra docs, synth-aware examples, and `/` command completions.
 - Pattern QoL: favorite patterns, plus random/nudge actions apply immediately (no preview confirmation step).
