@@ -7,6 +7,30 @@ Guidance for future LLMs working in this repo.
 - REPL UI lives in `website/src/repl`.
 - CodeMirror extensions live in `packages/codemirror`.
 
+## Multi-app philosophy
+- **Bloom is a platform of creative interfaces, not one app.** The REPL is just one way to interact with the pattern engine.
+- **It's encouraged to create new routes as experimental UIs.** Each route is a standalone mini-app with its own personality and purpose.
+- **The pattern engine (Superdough/webaudio) and file watcher are shared infrastructure.** They live in `website/src/engine/` as a React context provider so any route can use them without duplicating logic.
+- The main REPL (`/`) remains the full-featured editor. Lighter routes like `/headless` and `/controller` offer focused, stripped-down interfaces.
+
+### How to create a new mini-app route
+1. Create a new `.astro` page in `website/src/pages/` (e.g. `myapp.astro`).
+2. Create a React component for your app UI in `website/src/engine/` or `website/src/apps/`.
+3. Wrap your component with `<BloomEngineProvider>` to get access to the shared audio engine, file watcher, and playback controls.
+4. Use the `useBloomEngine()` hook inside your component to access: `started`, `toggle`, `tempo`, `code`, `fileName`, `evaluate`, `openFile`, `openWorkspace`.
+5. Add `client:only="react"` to your component in the Astro page.
+6. Minimal example:
+   ```jsx
+   import { BloomEngineProvider, useBloomEngine } from '../engine/BloomEngineContext';
+   function MyApp() {
+     const { started, toggle, tempo } = useBloomEngine();
+     return <button onClick={toggle}>{started ? 'Stop' : 'Play'}</button>;
+   }
+   export default function MyAppWrapper() {
+     return <BloomEngineProvider><MyApp /></BloomEngineProvider>;
+   }
+   ```
+
 ## Key features and entry points
 - Hydra docs in REPL reference/autocomplete:
   - Source: `docs/hydra/funcs.md`
