@@ -23,6 +23,8 @@
     "@heroicons/react": "^2.2.0",
     "@nanostores/persistent": "^0.10.2",
     "@nanostores/react": "^0.8.4",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
     "@strudel/codemirror": "workspace:*",
     "@strudel/core": "workspace:*",
     "@strudel/csound": "workspace:*",
@@ -32,6 +34,7 @@
     "@strudel/hydra": "workspace:*",
     "@strudel/midi": "workspace:*",
     "@strudel/mini": "workspace:*",
+    "@strudel/mondo": "workspace:*",
     "@strudel/motion": "workspace:*",
     "@strudel/mqtt": "workspace:*",
     "@strudel/osc": "workspace:*",
@@ -41,7 +44,6 @@
     "@strudel/tonal": "workspace:*",
     "@strudel/transpiler": "workspace:*",
     "@strudel/webaudio": "workspace:*",
-    "@strudel/mondo": "workspace:*",
     "@strudel/xen": "workspace:*",
     "@supabase/supabase-js": "^2.48.1",
     "@tailwindcss/forms": "^0.5.10",
@@ -67,6 +69,7 @@
     "rehype-urls": "^1.2.0",
     "remark-toc": "^9.0.0",
     "tailwindcss": "^3.4.17",
+    "three": "^0.183.2",
     "worker-timers": "^8.0.13"
   },
   "devDependencies": {
@@ -74,8 +77,8 @@
     "@vite-pwa/astro": "^0.5.0",
     "html-escaper": "^3.0.3",
     "sharp": "^0.33.5",
-    "workbox-window": "^7.3.0",
-    "vite-plugin-bundle-audioworklet": "workspace:*"
+    "vite-plugin-bundle-audioworklet": "workspace:*",
+    "workbox-window": "^7.3.0"
   },
   "engines": {
     "node": ">=18.0.0"

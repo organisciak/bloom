@@ -19,6 +19,7 @@
 - **Multi-app architecture**: bloom is a platform of creative interfaces, not just a REPL. A shared engine context (`BloomEngineProvider`) lets any route use the pattern engine and file watcher without duplicating logic. Mini-apps:
   - `/headless` — minimal play/stop, tempo display, and file watcher. Perfect for performing with an external editor.
   - `/controller` — MIDI-style pad controller with draggable knobs (tempo, gain, cutoff, swing, reverb, delay), AI suggestion pads that modify patterns via Claude API, and File System Access API sync. Responsive for tablet/phone as a remote control.
+  - `/world` — 3D wireframe world exploration that controls music composition through walking. Three.js scene with DOS/Battlezone aesthetic (white wireframe on black), WASD movement, procedural terrain with named zones (forests, cities, caverns, etc.), breadcrumb trail, day/night cycle, weather system, and fog of war. Claude AI periodically morphs your Strudel pattern based on the zone mood, time of day, weather, walking pattern, and exploration novelty. Settings panel to control update frequency and change intensity.
 
 ## Running Locally
 

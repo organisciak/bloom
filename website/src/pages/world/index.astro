@@ -1,0 +1,14 @@
+---
+import HeadCommon from '../../components/HeadCommon.astro';
+import World from '../../world/World';
+---
+
+<html lang="en" class="m-0 dark">
+  <head>
+    <HeadCommon />
+    <title>bloom world</title>
+  </head>
+  <body class="h-app-height bg-background m-0">
+    <World client:only="react" />
+  </body>
+</html>
