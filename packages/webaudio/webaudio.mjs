@@ -37,16 +37,9 @@ export const webaudioOutput = (hap, _deadline, hapDuration, cps, t) => {
   return superdough(hap2value(hap), t, hapDuration, cps, hap.whole?.begin.valueOf());
 };
 
-export async function renderPatternAudio(
-  pattern,
-  cps,
-  begin,
-  end,
-  sampleRate,
-  maxPolyphony,
-  multiChannelOrbits,
-  downloadName = undefined,
-) {
+// Render cycles begin..end of a pattern offline and resolve to the AudioBuffer.
+// Replaces the live audio context while rendering; callers re-run initAudio afterwards.
+export async function renderPatternBuffer(pattern, cps, begin, end, sampleRate, maxPolyphony, multiChannelOrbits) {
   let audioContext = getAudioContext();
   await audioContext.close();
   audioContext = new OfflineAudioContext(2, ((end - begin) / cps) * sampleRate, sampleRate);
@@ -80,9 +73,25 @@ export async function renderPatternAudio(
   }
   logger('[webaudio] start rendering');
 
-  return audioContext
-    .startRendering()
-    .then((renderedBuffer) => {
+  return audioContext.startRendering().finally(async () => {
+    setAudioContext(null);
+    setSuperdoughAudioController(null);
+    resetGlobalEffects();
+  });
+}
+
+export async function renderPatternAudio(
+  pattern,
+  cps,
+  begin,
+  end,
+  sampleRate,
+  maxPolyphony,
+  multiChannelOrbits,
+  downloadName = undefined,
+) {
+  return renderPatternBuffer(pattern, cps, begin, end, sampleRate, maxPolyphony, multiChannelOrbits).then(
+    (renderedBuffer) => {
       const wavBuffer = audioBufferToWav(renderedBuffer);
       const blob = new Blob([wavBuffer], { type: 'audio/wav' });
       const url = URL.createObjectURL(blob);
@@ -94,12 +103,8 @@ export async function renderPatternAudio(
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    })
-    .finally(async () => {
-      setAudioContext(null);
-      setSuperdoughAudioController(null);
-      resetGlobalEffects();
-    });
+    },
+  );
 }
 
 export function webaudioRepl(options = {}) {

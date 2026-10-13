@@ -13,6 +13,7 @@ on disk never gets replaced by one slide.
 */
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { diffLines, isDeck, parseDeck, playableCode, slideIndexAt } from '@strudel/transpiler';
+import { withSlide } from './deck_url.mjs';
 
 export function useDeck({ editorRef, code, announce }) {
   // { source, shown, index } while the editor holds a single slide
@@ -51,6 +52,7 @@ export function useDeck({ editorRef, code, announce }) {
       setView('slides');
       editor.setCodeRaw(next);
       editor.setSlideDiff(diffLines(before, next));
+      window.history.replaceState(window.history.state, '', withSlide(window.location.href, i));
       if (editor.repl?.scheduler?.started) editor.evaluate();
       return true;
     },

@@ -17,6 +17,7 @@ import {
   resetDefaults,
   initAudio,
   soundMap,
+  renderPatternBuffer,
 } from '@strudel/webaudio';
 import { setVersionDefaultsFrom, initCode, loadModules, shareCode, parseJSON } from './util.mjs';
 import { StrudelMirror, defaultSettings } from '@strudel/codemirror';
@@ -69,6 +70,8 @@ import { buildAutosavePath, shouldPromptAutosave } from './autosave_utils.mjs';
 import { isOpfsSupported, readOpfsFile, writeOpfsText } from './opfs_utils.mjs';
 import { buildSoundContextFromMap } from './sound_context.mjs';
 import { useDeck } from './useDeck';
+import { meterDeck } from './deck_meter.mjs';
+import { deckFromSearch } from './deck_url.mjs';
 
 const { latestCode, maxPolyphony, audioDeviceName, multiChannelOrbits } = settingsMap.get();
 let modulesLoading, presets, drawContext, clearCanvas, audioReady;
@@ -95,18 +98,19 @@ async function getModule(name) {
 
 const initialCode = `// LOADING`;
 
-// `?deck=name` opens website/public/decks/name.strudel in slide view
+// `?deck=name&slide=N` opens website/public/decks/name.strudel in slide view
 async function fetchDeckFromUrl() {
-  const name = new URLSearchParams(window.location.search).get('deck');
-  if (!name || !/^[\w-]+$/.test(name)) return null;
+  const wanted = deckFromSearch(window.location.search);
+  if (!wanted) return null;
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   try {
-    const res = await fetch(`${base}/decks/${name}.strudel`);
-    return res.ok ? { name, code: await res.text() } : null;
+    const res = await fetch(`${base}/decks/${wanted.name}.strudel`);
+    return res.ok ? { ...wanted, code: await res.text() } : null;
   } catch {
     return null;
   }
 }
+
 const METRONOME_MARKER = '@metronome';
 const METRONOME_SNIPPET = `// ${METRONOME_MARKER}\n$: s("rim*4").gain(0.2).pan(0)`;
 
@@ -191,13 +195,28 @@ export function useReplContext() {
     window.strudelMirror = editor;
     window.debugAudiograph = debugAudiograph;
     attachDeck(editor);
+    if (import.meta.env.DEV) {
+      // dev tool: `await bloomMeterDeck()` measures every slide's level offline
+      window.bloomMeterDeck = (options = {}) =>
+        meterDeck({
+          source: deckRef.current?.source ?? editor.code,
+          repl: editor.repl,
+          render: renderPatternBuffer,
+          onDone: async () => {
+            const { maxPolyphony, audioDeviceName, multiChannelOrbits } = settingsMap.get();
+            await initAudio({ maxPolyphony, audioDeviceName, multiChannelOrbits });
+            editor.repl.scheduler.stop();
+          },
+          ...options,
+        });
+    }
 
     // init settings
     fetchDeckFromUrl().then(async (urlDeck) => {
       if (urlDeck) {
         editor.setCode(urlDeck.code);
         setDocumentTitle(urlDeck.code);
-        presentSlide(0, urlDeck.code);
+        presentSlide(urlDeck.index, urlDeck.code);
         logger(
           `Welcome to ${FORK_NAME}! Opened the "${urlDeck.name}" deck. Press play, then step through the slides.`,
           'highlight',

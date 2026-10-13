@@ -1,5 +1,5 @@
 // @title Electronic genres, step by step
-// # Six dance genres, one change at a time
+// # Eleven dance genres, one change at a time
 // Every style here is built from the same few parts: **kick, hats, clap, bass, chords**.
 // Step through and *listen for what changes*. Green lines are new, amber lines changed,
 // and struck-through lines just left.
@@ -7,8 +7,10 @@
 // ## House (about 120–128 BPM)
 // Chicago, mid-1980s. It all starts with **four on the floor**: a kick on every beat.
 setcpm(124/4)
+// headroom: every layer a little quieter, so they can add up without clipping
+all((x) => x.postgain(0.55))
 await initHydra()
-kick: s("bd*4").bank("RolandTR909")
+kick: s("bd*4").bank("RolandTR909").gain(0.8)
 osc(10, 0.08, 1.4).color(1, 0.5, 0.2).kaleid(4).rotate(0, 0.05).modulate(osc(3, 0.02), 0.15).scale(H("[1.12 1]*4")).out()
 
 // ---
@@ -22,7 +24,7 @@ clap: s("~ cp ~ cp").bank("RolandTR909").gain(0.7)
 // ## House: the bassline
 // The bass plays **in the gaps** between kicks, so the two never fight over the low end.
 // It walks through the chord roots: A, F, C, G.
-bass: note("<a1 f1 c2 g1>").struct("[~ x]*4").s("sawtooth").lpf(450).lpq(6).decay(0.18).sustain(0)
+bass: note("<a1 f1 c2 g1>").struct("[~ x]*4").s("sawtooth").lpf(450).lpq(6).decay(0.18).sustain(0).gain(1.3)
 
 // ---
 // ## House: piano stabs
@@ -31,10 +33,26 @@ bass: note("<a1 f1 c2 g1>").struct("[~ x]*4").s("sawtooth").lpf(450).lpq(6).deca
 chords: note("<[a3,c4,e4,g4] [f3,a3,c4,e4] [c4,e4,g4,b4] [g3,b3,d4,f4]>").struct("~ x ~ ~ x ~ x ~").s("piano").gain(0.65)
 
 // ---
+// ## Acid house (about 120–128 BPM)
+// Chicago again, 1987 (Phuture, "Acid Tracks"). Same drums, but the piano and bass give way to a
+// **Roland TB-303**: one buzzy saw wave running sixteenths through a **resonant filter**.
+chords: silence
+bass: silence
+acid: note("a1 a1 a2 ~ a1 c2 a1 ~ a1 a1 g2 ~ a1 e2 a1 g1").s("sawtooth").lpf(450).lpq(18).ftype("ladder").decay(0.12).sustain(0.15).gain(0.6)
+osc(30, 0.15, 0).thresh(0.5).color(1, 1, 0.1).modulate(osc(6, 0.1).rotate(1.57), 0.4).kaleid(3).scale(H("[1.1 1]*4")).out()
+
+// ---
+// ## Acid house: the squelch
+// Now **sweep the filter** open and closed over 8 bars and push the resonance. Some notes get
+// an **accent** (louder, brighter). That rubbery "wow" is the whole genre.
+acid: note("a1 a1 a2 ~ a1 c2 a1 ~ a1 a1 g2 ~ a1 e2 a1 g1").s("sawtooth").lpf(sine.range(300, 2800).slow(8)).lpq(22).ftype("ladder").decay(0.12).sustain(0.15).gain("[0.55 0.55 0.8 0.55]*4")
+
+// ---
 // ## Deep house (about 118–124 BPM)
 // Slow down a little and **warm everything up**. The piano becomes an electric piano
 // playing jazzy **7th and 9th chords** that ring out instead of stabbing.
 setcpm(120/4)
+acid: silence
 chords: note("<[a3,c4,e4,g4,b4] [f3,a3,c4,e4,g4] [d3,f3,a3,c4,e4] [e3,g#3,b3,d4,f4]>").struct("~ x ~ ~ ~ x ~ ~").s("gm_epiano1").release(0.9).room(0.4).gain(0.7)
 osc(4, 0.02, 0.6).color(0.15, 0.35, 0.9).modulate(noise(1.5, 0.05), 0.35).rotate(0, 0.02).brightness(H("[0.08 0]*4")).out()
 
@@ -75,13 +93,13 @@ pluck: silence
 perc: silence
 lead: silence
 chords: note("<[a3,c4,e4] [f3,a3,c4] [c4,e4,g4] [g3,b3,d4]>").s("gm_pad_warm").attack(0.3).release(1).gain(0.55).orbit(2)
-shape(4, 0.3, 0.01).color(0.6, 0.3, 1).scale(H("[1.05 1]*4")).add(src(o0).scale(1.02).rotate(0.01), 0.9).out()
+src(o0).scale(1.015).rotate(0.006).color(0.97, 0.94, 0.99).blend(shape(4, 0.25, 0.01).color(0.6, 0.3, 1).scale(H("[1.05 1]*4")), 0.25).out()
 
 // ---
 // ## Progressive house: the rolling, pumping bass
 // A **rolling** bass on three of every four sixteenths, and the kick now **ducks** the bass
 // and pad (sidechain), so everything breathes around it. That pumping is a progressive trademark.
-kick: s("bd*4").bank("RolandTR909").duckorbit(2).duckattack(0.15).duckdepth(0.7)
+kick: s("bd*4").bank("RolandTR909").gain(0.8).duckorbit(2).duckattack(0.15).duckdepth(0.7)
 bass: note("<a1 f1 c2 g1>").struct("[~ x x x]*4").s("sawtooth").lpf(600).decay(0.12).sustain(0).orbit(2)
 hat: s("[~ oh]*4").bank("RolandTR909").gain(0.45)
 
@@ -92,16 +110,32 @@ hat: s("[~ oh]*4").bank("RolandTR909").gain(0.45)
 arp: n("[0 2 4 7]*2".add("<0 -2 2 -1>")).scale("A3:minor").s("supersaw").lpf(sine.range(400, 4000).slow(16)).decay(0.15).sustain(0).delay(0.3).gain(0.45).orbit(2)
 
 // ---
+// ## Trance (about 130–140 BPM)
+// Germany and the UK, early 1990s. Speed up to 138 and turn the pad into a wall of
+// **supersaws**, chopped into a stuttering rhythm by a **trance gate**. The bass sits on every off-beat.
+setcpm(138/4)
+chords: note("<[a3,c4,e4] [f3,a3,c4] [c4,e4,g4] [g3,b3,d4]>").s("supersaw").struct("[x ~ x x]*4").decay(0.1).sustain(0.4).release(0.05).lpf(3000).gain(0.4).orbit(2)
+bass: note("<a1 f1 c2 g1>").struct("[~ x]*4").s("sawtooth").lpf(700).decay(0.1).sustain(0).orbit(2)
+osc(60, 0.02, 0).thresh(0.9).kaleid(16).color(0.3, 0.8, 1).rotate(0, 0.08).brightness(H("[0.15 0]*4")).out()
+
+// ---
+// ## Trance: the anthem
+// The part people wait for: a **big, simple melody** on a bright lead, with long delay and reverb
+// so every note hangs in the air. The arpeggio keeps running underneath.
+lead: n("<[7 ~ 7 9 ~ 7 4 ~] [5 ~ 5 7 ~ 5 2 ~] [4 ~ 4 6 ~ 7 9 ~] [6 ~ 4 2 ~ 1 2 ~]>").scale("A4:minor").s("supersaw").decay(0.2).sustain(0.3).delay(0.4).room(0.5).gain(0.35).orbit(3)
+
+// ---
 // ## Big room: the build (about 126–132 BPM)
 // Festival EDM, around 2012. Strip almost everything away and **build tension**: a snare roll
-// that doubles every bar (4, 8, 16, 32 hits) and climbs in pitch. Watch the strobe speed up with it.
+// that doubles every bar (4, 8, 16, 32 hits) and climbs in pitch. Watch the shapes spin faster with it.
 setcpm(128/4)
 clap: silence
 hat: silence
 arp: silence
 bass: silence
+lead: silence
 fx: s("sd*<4 8 16 32>").bank("RolandTR909").speed("<1 1.1 1.25 1.5>").gain("<0.5 0.6 0.8 1>")
-shape(4, H("<0.2 0.35 0.5 0.7>"), 0.02).repeat(3, 3).color(1, 1, 1).invert(H("[0 1]*<4 8 16 32>")).out()
+shape(4, H("<0.2 0.35 0.5 0.7>"), 0.02).repeat(3, 3).rotate(0, H("<0.05 0.15 0.4 1>")).color(1, 1, 1).brightness(H("[0.2 0]*4")).out()
 
 // ---
 // ## Big room: the drop
@@ -109,7 +143,7 @@ shape(4, H("<0.2 0.35 0.5 0.7>"), 0.02).repeat(3, 3).color(1, 1, 1).invert(H("[0
 // The empty space is what makes it hit in a field of 50,000 people.
 fx: silence
 chords: silence
-kick: s("bd*4").bank("RolandTR909").shape(0.3).gain(1.05).duckorbit(2).duckdepth(0.9)
+kick: s("bd*4").bank("RolandTR909").shape(0.3).gain(0.8).duckorbit(2).duckdepth(0.9)
 lead: note("<[a4 ~ a4 c5 ~ a4 e5 ~] [f4 ~ f4 a4 ~ f4 c5 ~]>").s("supersaw").decay(0.12).sustain(0).lpf(3500).room(0.7).roomsize(6).gain(0.6).orbit(2)
 osc(30, 0.2, 1).kaleid(12).color(1, 0.2, 0.6).scale(H("[1.4 1]*4")).modulate(noise(3), 0.2).out()
 
@@ -119,8 +153,8 @@ osc(30, 0.2, 1).kaleid(12).color(1, 0.2, 0.6).scale(H("[1.4 1]*4")).modulate(noi
 // **rhythm and texture**. A dry kick, a reverb "rumble" ghosting it, and busy sixteenth hats.
 setcpm(132/4)
 lead: silence
-kick: s("bd*4").bank("RolandTR909").gain(1.05)
-rumble: s("bd*4").bank("RolandTR909").late(0.125).lpf(150).room(0.9).roomsize(4).gain(0.5)
+kick: s("bd*4").bank("RolandTR909").gain(0.85)
+rumble: s("bd*4").bank("RolandTR909").late(0.125).lpf(150).room(0.9).roomsize(4).gain(0.3)
 hat: s("hh*16").bank("RolandTR909").gain("[0.25 0.4 0.3 0.5]*4")
 osc(60, 0.1, 0).thresh(0.5).kaleid(2).scrollY(0, 0.1).mult(shape(4, 0.9, 0.01).repeat(8, 4)).brightness(H("[0.3 0]*4")).out()
 
@@ -133,7 +167,78 @@ clap: s("~ cp ~ cp").bank("RolandTR909").room(0.3).gain(0.65)
 ride: s("[~ rd]*4").bank("RolandTR909").gain(0.35)
 
 // ---
+// ## UK garage (about 130–135 BPM)
+// London, late 1990s. **Same tempo as the techno**, completely different feel: in **2-step**
+// the kick skips beats 2 and 4, the snare cracks on 2 and 4, and the hats swing hard.
+// Tempo alone doesn't make a genre; the groove does.
+stab: silence
+rumble: silence
+ride: silence
+kick: s("bd ~ ~ ~ ~ ~ ~ ~ ~ ~ bd ~ ~ ~ ~ ~").bank("RolandTR909").gain(1)
+clap: s("~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd ~ ~ ~").bank("RolandTR909").gain(0.7)
+hat: s("hh*8").bank("RolandTR909").gain("[0.3 0.5]*4").swingBy(1/3, 4)
+voronoi(10, 0.6, 0.2).color(0.6, 0.3, 1).add(osc(20, 0.05, 1).color(0.2, 1, 0.6), 0.3).scale(H("1.12 1 1 1 1 1 1 1 1 1 1.12 1 1 1 1 1")).out()
+
+// ---
+// ## UK garage: bass, organ and vocal chops
+// A bouncy **sub bass**, short **organ stabs**, and **chopped vocals** (here a choir "ooh")
+// dropped into the gaps. The visual pulses on the 2-step kick.
+bass: note("<a1 f1 c2 g1>").struct("x ~ ~ x ~ ~ x ~ ~ ~ x ~ x ~ ~ ~").s("sawtooth").lpf(300).decay(0.25).sustain(0.3).gain(0.9)
+chords: note("<[a3,c4,e4,g4] [f3,a3,c4,e4] [c4,e4,g4,b4] [g3,b3,d4,f4]>").struct("~ ~ x ~ ~ x ~ ~ ~ ~ x ~ ~ ~ ~ ~").s("gm_drawbar_organ").decay(0.15).sustain(0).gain(1)
+vox: note("[~ e5 ~ ~] [~ ~ c5 ~]").s("gm_voice_oohs").decay(0.2).sustain(0).room(0.4).gain(1)
+
+// ---
+// ## Dubstep (about 138–142 BPM)
+// South London, early 2000s, grown out of garage's darker side. The kick stays exactly where it was,
+// but the snare **moves to beat 3**. One change, and everything feels **half as fast**.
+setcpm(140/4)
+clap: s("~ ~ ~ ~ ~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~").bank("RolandTR909").room(0.3).gain(0.8)
+chords: silence
+vox: silence
+bass: note("<a1 a1 f1 g1>").s("sine").legato(1).gain(0.9)
+noise(3, 0.1).thresh(0.45).color(0.1, 1, 0.4).modulate(osc(4, 0.1), H("[0.05 0.4]")).scale(1.2).out()
+
+// ---
+// ## Dubstep: the wobble
+// The bass becomes a saw wave whose filter is swept by an **LFO** at different speeds each bar:
+// 4 wobbles, then 2, then 8, then 3. That "wub" is a filter opening and closing.
+bass: note("<a1 a1 f1 g1>").struct("x*32").legato(1).s("sawtooth").lpf(sine.range(150, 2200).fast("<4 2 8 3>")).lpq(12).ftype("ladder").gain(0.75)
+
+// ---
+// ## Drum & bass (about 170–180 BPM)
+// Jungle in the early 90s, drum & bass after. **Nearly twice as fast**, built on a sampled
+// breakbeat: the **Amen break**, a few seconds of drum solo from The Winstons' "Amen, Brother" (1969).
+// The drum machines step aside.
+setcpm(174/4)
+kick: silence
+clap: silence
+hat: silence
+breaks: s("brk/2").fit().gain(1.7)
+osc(40, 0.3, 1.2).kaleid(3).color(0.2, 0.6, 1).modulateScale(osc(8, 0.2), 0.5).scale(H("[1.12 1]*2")).out()
+
+// ---
+// ## Drum & bass: Reese bass and the chop
+// Under the break, a slow **Reese bass**: detuned saws beating against each other. On top, the break
+// gets **chopped**: cut into 16 slices and rearranged, with doubled hits pitched up.
+bass: note("<a1 a1 f1 g1>").s("supersaw").unison(2).detune(0.25).lpf(350).legato(1).gain(0.9)
+breaks: s("brk").splice(16, "<[0 1 2 3 4 5 6 7] [8 9 10 11 12 [12 12] 14 [15 3]]>").gain(1.7)
+
+// ---
+// ## Recap: eleven genres by tempo
+// - **House** 120–128: four on the floor, off-beat hats, piano stabs
+// - **Acid house** 120–128: the squelchy TB-303 line
+// - **Deep house** 118–124: jazzy 7th and 9th chords, shuffle, sub bass
+// - **Tropical house** 100–115: marimba, steel drums, pan flute
+// - **Progressive house** 122–130: rolling bass, sidechain pump, slow builds
+// - **Trance** 130–140: gated supersaws, off-beat bass, big melodies
+// - **Big room** 126–132: snare-roll builds, near-empty drops
+// - **Techno** 125–145: rhythm and texture, almost no chords
+// - **UK garage** 130–135: 2-step kick, swing, organ stabs
+// - **Dubstep** 138–142: snare on beat 3, wobble bass
+// - **Drum & bass** 170–180: chopped breakbeats, Reese bass
+
+// ---
 // ## Your turn
-// Six genres, a handful of named layers each. Switch to **code** view and try a change:
+// Eleven genres, a handful of named layers each. Switch to **code** view and try a change:
 // `kick: silence` for a breakdown, a new `setcpm(...)`, or bring back the flute with `lead:`.
 // Ctrl+Enter plays the slide your cursor is in.
