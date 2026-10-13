@@ -94,119 +94,51 @@ Guidance for future LLMs working in this repo.
 - Use `pnpm` for install/test/dev (`pnpm dev` for the website).
 
 
-## Issue Tracking
+## Tasks: the Obsidian tracker (Peter, 2026-10-12; replaced beads)
 
-We use bd (beads) for issue tracking instead of Markdown TODOs or external tools.
+Tasks live in Peter's Obsidian vault, not in this repo:
 
-### Quick Reference
+    ~/workspace/Obsidian Vault/Projects/bloom/
+      LLM Todos.md       the inbox: Peter dictates under "Inbox"; agents leave
+                         him notes under "From Claude"
+      Tasks/*.md         one note per task (frontmatter: id bl-NN, status,
+                         priority 1-4, type, area, from, labels, created, closed)
+      Bloom Tasks.base   table views: Open, Needs Peter, From Peter, Done, By area
+      bloom.md           the full conventions, for Peter and for agents
 
-```bash
-# Find ready work (no blockers)
-bd ready --json
-
-# Find ready work including future deferred issues
-bd ready --include-deferred --json
-
-# Create new issue
-bd create "Issue title" -t bug|feature|task -p 0-4 -d "Description" --json
-
-# Create issue with due date and defer (GH#820)
-bd create "Task" --due=+6h              # Due in 6 hours
-bd create "Task" --defer=tomorrow       # Hidden from bd ready until tomorrow
-bd create "Task" --due="next monday" --defer=+1h  # Both
-
-# Update issue status
-bd update <id> --status in_progress --json
-
-# Update issue with due/defer dates
-bd update <id> --due=+2d                # Set due date
-bd update <id> --defer=""               # Clear defer (show immediately)
-
-# Link discovered work
-bd dep add <discovered-id> <parent-id> --type discovered-from
-
-# Complete work
-bd close <id> --reason "Done" --json
-
-# Show dependency tree
-bd dep tree <id>
-
-# Get issue details
-bd show <id> --json
-
-# Query issues by time-based scheduling (GH#820)
-bd list --deferred              # Show issues with defer_until set
-bd list --defer-before=tomorrow # Deferred before tomorrow
-bd list --defer-after=+1w       # Deferred after one week from now
-bd list --due-before=+2d        # Due within 2 days
-bd list --due-after="next monday" # Due after next Monday
-bd list --overdue               # Due date in past (not closed)
-```
-
-### Workflow
-
-1. **Check for ready work**: Run `bd ready` to see what's unblocked
-2. **Claim your task**: `bd update <id> --status in_progress`
-3. **Work on it**: Implement, test, document
-4. **Discover new work**: If you find bugs or TODOs, create issues:
-   - `bd create "Found bug in auth" -t bug -p 1 --json`
-   - Link it: `bd dep add <new-id> <current-id> --type discovered-from`
-5. **Complete**: `bd close <id> --reason "Implemented"`
-6. **Export**: Run `bd export -o .beads/issues.jsonl` before committing
-
-### Issue Types
-
-- `bug` - Something broken that needs fixing
-- `feature` - New functionality
-- `task` - Work item (tests, docs, refactoring)
-- `epic` - Large feature composed of multiple issues
-- `chore` - Maintenance work (dependencies, tooling)
-
-### Priorities
-
-- `0` - Critical (security, data loss, broken builds)
-- `1` - High (major features, important bugs)
-- `2` - Medium (nice-to-have features, minor bugs)
-- `3` - Low (polish, optimization)
-- `4` - Backlog (future ideas)
-
-### Dependency Types
-
-- `blocks` - Hard dependency (issue X blocks issue Y)
-- `related` - Soft relationship (issues are connected)
-- `parent-child` - Epic/subtask relationship
-- `discovered-from` - Track issues discovered during work
-
-Only `blocks` dependencies affect the ready work queue.
+- **Session start:** the SessionStart hook runs `node tools/tasks.mjs`, which
+  prints the untriaged Inbox lines and the open tasks (`--next` gives the next id).
+- **Triage** every unticked Inbox line into a task note (next free `bl-NN`,
+  Peter's words verbatim under `## Peter's words`), then tick the line, append
+  `→ [[note]] ✅ <date>` and move it under **Triaged**.
+- **Work:** `status: doing` before coding; when done `status: done`, `closed:`,
+  and a dated `## Log` line saying what shipped and the commit. Never delete a
+  note: `dropped` with a reason.
+- Found work you won't do now → a task note with `from: ai`, not a TODO in code.
+- Need a decision or a listen from Peter → a dated line under **From Claude** in
+  `LLM Todos.md`, and label the task `needs-peter`.
+- Cite task ids in commit messages (`bl-28: ...`).
+- **No `- [ ]` checkboxes outside the Inbox**: every open checkbox in the vault
+  lands in Peter's global To-do List.
+- Old beads issues are archived in `docs/archive/beads-issues-2026-10-12.jsonl`;
+  each migrated note carries its `beads:` id.
 
 ## Development Guidelines
 
 ### Before Committing
 
 1. **Run tests**: `pnpm run test`
-2. **Export issues**: `bd export -o .beads/issues.jsonl`
-3. **Update docs**: If you changed behavior, update README.md or other docs
-4. **Git add both**: `git add .beads/issues.jsonl <your-changes>`
+2. **Update docs**: If you changed behavior, update README.md or other docs
+3. **Update the task note** in the Obsidian tracker (status, log line)
 
 ### Git Workflow
 
 **Just commit and push.** No branches, no PRs. Direct to main.
 
 ```bash
-# Make changes
 git add <files>
-
-# Export beads issues
-bd export -o .beads/issues.jsonl
-git add .beads/issues.jsonl
-
-# Commit and push
-git commit -m "Your message"
+git commit -m "bl-NN: Your message"
 git push
-
-# After pull
-git pull
-bd import -i .beads/issues.jsonl  # Sync SQLite cache
 ```
 
 If working in a **worktree** for parallel work, merge to main when done:
@@ -231,25 +163,12 @@ git push origin main
 2. Check for breaking changes in upstream commits
 3. Update any custom features that may conflict with upstream changes
 
-## Current Project Status
-
-Run `bd stats` to see overall progress.
-
 ## Questions?
 
-- Check existing issues: `bd list`
+- Open tasks: `node tools/tasks.mjs`
 - Look at recent commits: `git log --oneline -20`
 - Read the docs: README.md
-- Create an issue if unsure: `bd create "Question: ..." -t task -p 2`
-
-## Pro Tips for Agents
-
-- Always use `--json` flags for programmatic use
-- Link discoveries with `discovered-from` to maintain context
-- Check `bd ready` before asking "what next?"
-- Export to JSONL before committing (or use git hooks)
-- Use `bd dep tree` to understand complex dependencies
-- Priority 0-1 issues are usually more important than 2-4
+- Unsure about direction → ask Peter under **From Claude** in `LLM Todos.md`
 
 
 After implementing larger features, update the `README.md` section, "## New features and changes from `strudel`".
