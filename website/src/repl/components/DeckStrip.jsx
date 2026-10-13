@@ -57,7 +57,7 @@ export function DeckStrip({ context }) {
   if (!deck) return null;
   const errorNote = deckError ? `slide ${(deckError.slide ?? 0) + 1}: ${deckError.message}` : null;
   const switcher = (
-    <ViewSwitch view={deckView} onCode={showDeckCode} onText={showDeckText} onSlides={() => presentSlide(slideIndex)} />
+    <ViewSwitch view={deckView} onCode={showDeckCode} onText={showDeckText} onSlides={() => presentSlide()} />
   );
 
   if (!presenting) {

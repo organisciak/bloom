@@ -12,7 +12,7 @@ it instead of the editor for saving, autosave, history and sharing, so the deck
 on disk never gets replaced by one slide.
 */
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { diffLines, isDeck, parseDeck, playableCode } from '@strudel/transpiler';
+import { diffLines, isDeck, parseDeck, playableCode, slideIndexAt } from '@strudel/transpiler';
 
 export function useDeck({ editorRef, code, announce }) {
   // { source, shown, index } while the editor holds a single slide
@@ -40,7 +40,9 @@ export function useDeck({ editorRef, code, announce }) {
         announce(error ? `deck error on slide ${(error.slide ?? 0) + 1}` : 'nothing to present', 'warn');
         return false;
       }
-      const i = Math.min(Math.max(target, 0), slides.length - 1);
+      // no target: stay on the current slide, or start where the cursor is
+      const wanted = target ?? deckRef.current?.index ?? slideIndexAt(slides, editor.getCursorLocation?.() ?? 0);
+      const i = Math.min(Math.max(wanted, 0), slides.length - 1);
       const next = slides[i].code;
       const before = deckRef.current?.shown ?? (i > 0 ? slides[i - 1].code : '');
       deckRef.current = { source: src, shown: next, index: i };
