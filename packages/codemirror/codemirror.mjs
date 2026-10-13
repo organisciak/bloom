@@ -25,6 +25,7 @@ import { activateTheme, initTheme, theme } from './themes.mjs';
 import { isTooltipEnabled } from './tooltip.mjs';
 import { updateWidgets, widgetPlugin } from './widget.mjs';
 import { claudePrompt } from './claude.mjs';
+import { showSlideDiff, slideDiff } from './slide_diff.mjs';
 
 export { toggleBlockComment, toggleBlockCommentByLine, toggleComment, toggleLineComment } from '@codemirror/commands';
 
@@ -97,6 +98,7 @@ export function initEditor({ initialCode = '', onChange, onEvaluate, onStop, roo
       sliderPlugin,
       widgetPlugin,
       claudePrompt,
+      slideDiff,
       // indentOnInput(), // works without. already brought with javascript
       // extension? bracketMatching(), // does not do anything
       syntaxHighlighting(defaultHighlightStyle),
@@ -153,9 +155,12 @@ export class StrudelMirror {
       prebake,
       bgFill = true,
       solo = true,
+      transformCode,
       ...replOptions
     } = options;
     this.code = initialCode;
+    // optional (code, mirror) => code to evaluate instead, e.g. one slide of a deck
+    this.transformCode = transformCode;
     this.root = root;
     this.miniLocations = [];
     this.widgets = [];
@@ -200,9 +205,10 @@ export class StrudelMirror {
         await replOptions?.beforeEval?.();
       },
       afterEval: (options) => {
-        // remember for when highlighting is toggled on
-        this.miniLocations = options.meta?.miniLocations;
-        this.widgets = options.meta?.widgets;
+        // remember for when highlighting is toggled on; locations only fit the
+        // editor when the evaluated code is the editor's own text
+        this.miniLocations = this.evaluatedTransformed ? [] : options.meta?.miniLocations;
+        this.widgets = this.evaluatedTransformed ? [] : options.meta?.widgets;
         const sliders = this.widgets.filter((w) => w.type === 'slider');
         updateSliderWidgets(this.editor, sliders);
         const widgets = this.widgets.filter((w) => w.type !== 'slider');
@@ -297,7 +303,13 @@ export class StrudelMirror {
   }
   async evaluate(autostart = true) {
     this.flash();
-    await this.repl.evaluate(this.code, autostart);
+    const code = this.transformCode ? this.transformCode(this.code, this) : this.code;
+    this.evaluatedTransformed = code !== this.code;
+    await this.repl.evaluate(code, autostart);
+  }
+  // highlight what changed since the previous deck slide (see slide_diff.mjs)
+  setSlideDiff(diff) {
+    showSlideDiff(this.editor, diff);
   }
   async stop() {
     this.repl.scheduler.stop();

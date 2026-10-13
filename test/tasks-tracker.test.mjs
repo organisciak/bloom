@@ -19,14 +19,28 @@ describe('tasks tracker', () => {
     write('Old thing', note('id: bl-11\nstatus: done\npriority: 1'));
     fs.writeFileSync(
       path.join(tracker, 'LLM Todos.md'),
-      ['Intro', '', '## Inbox', '', '- [ ] make it purple', '- [x] already handled', '- [ ] ', '', '## Triaged', '', '- [ ] not inbox'].join('\n'),
+      [
+        'Intro',
+        '',
+        '## Inbox',
+        '',
+        '- [ ] make it purple',
+        '- [x] already handled',
+        '- [ ] ',
+        '',
+        '## Triaged',
+        '',
+        '- [ ] not inbox',
+      ].join('\n'),
     );
   });
 
   afterAll(() => fs.rmSync(tracker, { recursive: true, force: true }));
 
   it('reads flat frontmatter and joins list values', () => {
-    const fm = frontmatter(note('id: bl-01\nclosed: \nlabels:\n  - needs-peter\n  - big\nblocked_by:\n  - "[[Other]]"'));
+    const fm = frontmatter(
+      note('id: bl-01\nclosed: \nlabels:\n  - needs-peter\n  - big\nblocked_by:\n  - "[[Other]]"'),
+    );
     expect(fm).toMatchObject({ id: 'bl-01', closed: '', labels: 'needs-peter big', blocked_by: '"[[Other]]"' });
   });
 

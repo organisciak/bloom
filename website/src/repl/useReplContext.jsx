@@ -68,6 +68,7 @@ import { loadWorkspaceRecents, mergeWorkspaceRecent, persistWorkspaceRecents } f
 import { buildAutosavePath, shouldPromptAutosave } from './autosave_utils.mjs';
 import { isOpfsSupported, readOpfsFile, writeOpfsText } from './opfs_utils.mjs';
 import { buildSoundContextFromMap } from './sound_context.mjs';
+import { useDeck } from './useDeck';
 
 const { latestCode, maxPolyphony, audioDeviceName, multiChannelOrbits } = settingsMap.get();
 let modulesLoading, presets, drawContext, clearCanvas, audioReady;
@@ -93,6 +94,19 @@ async function getModule(name) {
 }
 
 const initialCode = `// LOADING`;
+
+// `?deck=name` opens website/public/decks/name.strudel in slide view
+async function fetchDeckFromUrl() {
+  const name = new URLSearchParams(window.location.search).get('deck');
+  if (!name || !/^[\w-]+$/.test(name)) return null;
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  try {
+    const res = await fetch(`${base}/decks/${name}.strudel`);
+    return res.ok ? { name, code: await res.text() } : null;
+  } catch {
+    return null;
+  }
+}
 const METRONOME_MARKER = '@metronome';
 const METRONOME_SNIPPET = `// ${METRONOME_MARKER}\n$: s("rim*4").gain(0.2).pan(0)`;
 
@@ -140,7 +154,8 @@ export function useReplContext() {
       },
       beforeEval: () => audioReady,
       afterEval: (all) => {
-        const { code } = all;
+        // store the file as written: the whole deck, not the slide that played
+        const code = deckRef.current ? deckRef.current.source : (editorRef.current?.code ?? all.code);
         //post to iframe parent (like Udels) if it exists...
         window.parent?.postMessage(code);
 
@@ -175,9 +190,21 @@ export function useReplContext() {
     });
     window.strudelMirror = editor;
     window.debugAudiograph = debugAudiograph;
+    attachDeck(editor);
 
     // init settings
-    initCode().then(async (decoded) => {
+    fetchDeckFromUrl().then(async (urlDeck) => {
+      if (urlDeck) {
+        editor.setCode(urlDeck.code);
+        setDocumentTitle(urlDeck.code);
+        presentSlide(0, urlDeck.code);
+        logger(
+          `Welcome to ${FORK_NAME}! Opened the "${urlDeck.name}" deck. Press play, then step through the slides.`,
+          'highlight',
+        );
+        return;
+      }
+      const decoded = await initCode();
       let code, msg;
       if (decoded) {
         code = decoded;
@@ -273,6 +300,20 @@ export function useReplContext() {
     editorRef.current?.editor?.focus?.();
   };
 
+  const {
+    deckRef,
+    deck,
+    deckError,
+    deckView,
+    slideIndex,
+    presentSlide,
+    stepSlide,
+    showDeckText,
+    showDeckCode,
+    attachDeck,
+    reloadDeckSource,
+  } = useDeck({ editorRef, code: replState.code, announce });
+
   useEffect(() => {
     if (startedRef.current === null) {
       startedRef.current = started;
@@ -338,6 +379,9 @@ export function useReplContext() {
   };
 
   const getCurrentCode = () => {
+    if (deckRef.current) {
+      return deckRef.current.source;
+    }
     if (editorRef.current?.code != null) {
       return editorRef.current.code;
     }
@@ -551,6 +595,10 @@ export function useReplContext() {
   }, [refreshWorkspaceEntries, syncWorkspacePermission, workspaceSupported]);
 
   useEffect(() => {
+    // in slide view the editor holds one slide; the deck file itself is unchanged
+    if (deckRef.current) {
+      return;
+    }
     if (!replState.code || replState.code === initialCode || pending) {
       return;
     }
@@ -581,6 +629,13 @@ export function useReplContext() {
     }
     const watcher = createFileWatcher({
       onChanged: (text) => {
+        if (deckRef.current) {
+          if (reloadDeckSource(text)) {
+            logger('[fs] deck updated externally — reloaded', 'highlight');
+            announce('deck updated', 'good');
+          }
+          return;
+        }
         const currentCode = editorRef.current?.code ?? editorRef.current?.editor?.state?.doc?.toString?.() ?? '';
         if (text === currentCode) return;
         setAutoUpdateDetected(true);
@@ -603,7 +658,7 @@ export function useReplContext() {
       watcher.stop();
       fileWatcherRef.current = null;
     };
-  }, [autoUpdateEnabled, workspaceActivePath, started, announce]);
+  }, [autoUpdateEnabled, workspaceActivePath, started, announce, reloadDeckSource]);
 
   const handleOpenFile = async () => {
     if (!isFileSystemAccessSupported()) {
@@ -1128,7 +1183,7 @@ export function useReplContext() {
   };
 
   const handleShare = async () => {
-    let code = replState.code;
+    let code = deckRef.current?.source ?? replState.code;
     if (includePrebakeScriptInShare) {
       code = prebakeScript + '\n' + code;
     }
@@ -1216,6 +1271,14 @@ export function useReplContext() {
     handleAutosaveRestore,
     handleAutosaveDismiss,
     soundContext,
+    deck,
+    deckError,
+    deckView,
+    slideIndex,
+    presentSlide,
+    stepSlide,
+    showDeckText,
+    showDeckCode,
     init,
     error,
     editorRef,

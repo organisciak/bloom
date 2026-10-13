@@ -28,7 +28,8 @@ export async function initCode() {
     if (codeParam) {
       // looking like https://strudel.cc/#ImMzIGUzIg%3D%3D (hash length depends on code length)
       return hash2code(codeParam);
-    } else if (hash) {
+    } else if (hash && !hash.includes('=')) {
+      // `?key=value` params (like ?deck=) are not short hashes
       // looking like https://strudel.cc/?J01s5i1J0200 (fixed hash length)
       return supabase
         .from('code_v1')

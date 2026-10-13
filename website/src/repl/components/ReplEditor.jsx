@@ -3,6 +3,8 @@ import { HorizontalPanel, VerticalPanel } from '@src/repl/components/panel/Panel
 import { Code } from '@src/repl/components/Code';
 import UserFacingErrorMessage from '@src/repl/components/UserFacingErrorMessage';
 import { Header } from './Header';
+import { DeckStrip } from './DeckStrip';
+import { DeckText } from './DeckText';
 import { useSettings } from '@src/settings.mjs';
 
 // type Props = {
@@ -19,8 +21,10 @@ export default function ReplEditor(Props) {
     <div className="h-full flex flex-col relative" {...editorProps}>
       <Loader active={pending} />
       <Header context={context} />
+      <DeckStrip context={context} />
       <div className="grow flex relative overflow-hidden">
         <Code containerRef={containerRef} editorRef={editorRef} init={init} />
+        <DeckText context={context} />
         {!isZen && panelPosition === 'right' && <VerticalPanel context={context} />}
       </div>
       <UserFacingErrorMessage error={error} context={context} />

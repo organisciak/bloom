@@ -1,0 +1,29 @@
+// @title Four on the floor (toy deck)
+// # Four on the floor
+// A kick drum on **every beat** is the floor most dance music stands on.
+// Press play, then step through with › or `Alt+→`.
+setcpm(124/4)
+await initHydra()
+kick: s("bd*4").bank("RolandTR909")
+osc(6, 0.04, 0.4).kaleid(4).color(0.9, 0.6, 1).out()
+
+// ---
+// ## Add the hats
+// Put a hat on every **off-beat**, between the kicks: *boom-tss, boom-tss*.
+// That push and pull is the bounce of house music.
+hat: s("[~ hh]*4").bank("RolandTR909").gain(0.7)
+osc(12, 0.08, 0.9).kaleid(6).modulate(noise(2), 0.1).color(1, 0.7, 0.9).out()
+
+// ---
+// ## A bass on the off-beat
+// The bass answers the kick instead of doubling it, so the low end never clutters.
+// The hats open up (`oh`) to make room.
+bass: note("[~ c2]*4").s("sawtooth").lpf(500).decay(0.15).sustain(0)
+hat: s("[~ oh]*4").bank("RolandTR909").gain(0.55)
+osc(18, 0.1, 1.4).kaleid(8).modulate(noise(3), 0.2).color(1, 0.5, 0.8).contrast(1.3).out()
+
+// ---
+// ## Breakdown
+// Take the kick away and everything floats. When it comes back, it hits harder.
+kick: silence
+osc(4, 0.02, 0.2).kaleid(3).color(0.6, 0.6, 1).luma(0.2).out()

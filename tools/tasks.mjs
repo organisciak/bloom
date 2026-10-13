@@ -44,14 +44,20 @@ export function readTasks(tracker) {
 }
 
 export function nextId(tasks) {
-  const nums = tasks.map((t) => t.id?.match(/^bl-(\d+)$/)?.[1]).filter(Boolean).map(Number);
+  const nums = tasks
+    .map((t) => t.id?.match(/^bl-(\d+)$/)?.[1])
+    .filter(Boolean)
+    .map(Number);
   return `bl-${String(Math.max(0, ...nums) + 1).padStart(2, '0')}`;
 }
 
 // Unticked `- [ ]` lines between `## Inbox` and the next heading
 export function inboxLines(text) {
   const sec = text.match(/^## Inbox\n([\s\S]*?)(?=^## |(?![\s\S]))/m);
-  return (sec ? sec[1] : '').split('\n').filter((l) => /^\s*- \[ \] \S/.test(l)).map((l) => l.trim());
+  return (sec ? sec[1] : '')
+    .split('\n')
+    .filter((l) => /^\s*- \[ \] \S/.test(l))
+    .map((l) => l.trim());
 }
 
 export function report(tracker) {
