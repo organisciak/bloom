@@ -1,0 +1,139 @@
+// @title Electronic genres, step by step
+// # Six dance genres, one change at a time
+// Every style here is built from the same few parts: **kick, hats, clap, bass, chords**.
+// Step through and *listen for what changes*. Green lines are new, amber lines changed,
+// and struck-through lines just left.
+//
+// ## House (about 120–128 BPM)
+// Chicago, mid-1980s. It all starts with **four on the floor**: a kick on every beat.
+setcpm(124/4)
+await initHydra()
+kick: s("bd*4").bank("RolandTR909")
+osc(10, 0.08, 1.4).color(1, 0.5, 0.2).kaleid(4).rotate(0, 0.05).modulate(osc(3, 0.02), 0.15).scale(H("[1.12 1]*4")).out()
+
+// ---
+// ## House: hats and clap
+// An **open hat on every off-beat** (between the kicks) and a **clap on beats 2 and 4**.
+// Kick, hat, kick, hat: that push and pull is the swing of house.
+hat: s("[~ oh]*4").bank("RolandTR909").gain(0.5)
+clap: s("~ cp ~ cp").bank("RolandTR909").gain(0.7)
+
+// ---
+// ## House: the bassline
+// The bass plays **in the gaps** between kicks, so the two never fight over the low end.
+// It walks through the chord roots: A, F, C, G.
+bass: note("<a1 f1 c2 g1>").struct("[~ x]*4").s("sawtooth").lpf(450).lpq(6).decay(0.18).sustain(0)
+
+// ---
+// ## House: piano stabs
+// The classic house piano: short, **syncopated** chord stabs that land just off the grid.
+// Four chords, one per bar: Am7, Fmaj7, Cmaj7, G7.
+chords: note("<[a3,c4,e4,g4] [f3,a3,c4,e4] [c4,e4,g4,b4] [g3,b3,d4,f4]>").struct("~ x ~ ~ x ~ x ~").s("piano").gain(0.65)
+
+// ---
+// ## Deep house (about 118–124 BPM)
+// Slow down a little and **warm everything up**. The piano becomes an electric piano
+// playing jazzy **7th and 9th chords** that ring out instead of stabbing.
+setcpm(120/4)
+chords: note("<[a3,c4,e4,g4,b4] [f3,a3,c4,e4,g4] [d3,f3,a3,c4,e4] [e3,g#3,b3,d4,f4]>").struct("~ x ~ ~ ~ x ~ ~").s("gm_epiano1").release(0.9).room(0.4).gain(0.7)
+osc(4, 0.02, 0.6).color(0.15, 0.35, 0.9).modulate(noise(1.5, 0.05), 0.35).rotate(0, 0.02).brightness(H("[0.08 0]*4")).out()
+
+// ---
+// ## Deep house: softer drums, rounder bass
+// Closed hats with a **shuffle** (every second one comes late), a quiet rim instead of the clap,
+// and a round **sine sub-bass** you feel more than hear.
+hat: s("hh*8").bank("RolandTR909").gain("[0.25 0.45]*4").swingBy(1/3, 4)
+clap: s("~ rim ~ rim").bank("RolandTR808").gain(0.6)
+bass: note("<a1 f1 d1 e1>").struct("x ~ ~ x ~ ~ x ~").s("sine").decay(0.45).sustain(0.2).gain(0.95)
+
+// ---
+// ## Tropical house (about 100–115 BPM)
+// A deep-house offshoot that took off around 2013 (Kygo, Thomas Jack). **Much slower**,
+// and **sunnier**: the chords move to a bright pop progression, C, G, Am, F.
+setcpm(104/4)
+chords: note("<[c4,e4,g4] [g3,b3,d4] [a3,c4,e4] [f3,a3,c4]>").struct("x ~ ~ x ~ ~ x ~").s("gm_epiano1").release(0.6).gain(0.6)
+bass: note("<c2 g1 a1 f1>").struct("x ~ ~ x ~ ~ x ~").s("sine").decay(0.4).sustain(0.2).gain(0.9)
+voronoi(6, 0.3, 0.4).color(0.2, 0.95, 0.85).add(osc(2, 0.05, 0.8).color(1, 0.8, 0.3), 0.4).modulate(noise(2, 0.1), 0.15).scale(H("[1.06 1]*4")).out()
+
+// ---
+// ## Tropical house: marimba and steel drums
+// The signature sound: **wooden and metallic plucks** (marimba, steel drums) bouncing over the chords.
+pluck: n("[0 ~ 4 2] [~ 4 ~ 7]".add("<0 4 5 3>")).scale("C4:major").s("gm_marimba").gain(0.75)
+perc: n("[~ 7] [~ 9] [~ 7] [11 ~]".add("<0 4 5 3>")).scale("C5:major").s("gm_steel_drums").gain(0.35)
+
+// ---
+// ## Tropical house: the flute hook
+// And the hook everyone remembers: a breathy **pan flute** melody, airy and wet with reverb.
+lead: n("<[4 ~ 2 4] [~ 7 6 4] [5 ~ 4 2] [~ 0 1 2]>").scale("C5:major").s("gm_pan_flute").room(0.5).gain(0.7)
+
+// ---
+// ## Progressive house (about 122–130 BPM)
+// Back to minor, back up to speed. Progressive is about **patience**: long builds and
+// layers that open slowly over minutes. The tropical sounds leave; a warm pad takes over.
+setcpm(126/4)
+pluck: silence
+perc: silence
+lead: silence
+chords: note("<[a3,c4,e4] [f3,a3,c4] [c4,e4,g4] [g3,b3,d4]>").s("gm_pad_warm").attack(0.3).release(1).gain(0.55).orbit(2)
+shape(4, 0.3, 0.01).color(0.6, 0.3, 1).scale(H("[1.05 1]*4")).add(src(o0).scale(1.02).rotate(0.01), 0.9).out()
+
+// ---
+// ## Progressive house: the rolling, pumping bass
+// A **rolling** bass on three of every four sixteenths, and the kick now **ducks** the bass
+// and pad (sidechain), so everything breathes around it. That pumping is a progressive trademark.
+kick: s("bd*4").bank("RolandTR909").duckorbit(2).duckattack(0.15).duckdepth(0.7)
+bass: note("<a1 f1 c2 g1>").struct("[~ x x x]*4").s("sawtooth").lpf(600).decay(0.12).sustain(0).orbit(2)
+hat: s("[~ oh]*4").bank("RolandTR909").gain(0.45)
+
+// ---
+// ## Progressive house: the slow build
+// An arpeggio follows the chords while its **filter opens over 16 bars**. Nothing new is
+// added; the same idea just gets brighter. That is the "progression".
+arp: n("[0 2 4 7]*2".add("<0 -2 2 -1>")).scale("A3:minor").s("supersaw").lpf(sine.range(400, 4000).slow(16)).decay(0.15).sustain(0).delay(0.3).gain(0.45).orbit(2)
+
+// ---
+// ## Big room: the build (about 126–132 BPM)
+// Festival EDM, around 2012. Strip almost everything away and **build tension**: a snare roll
+// that doubles every bar (4, 8, 16, 32 hits) and climbs in pitch. Watch the strobe speed up with it.
+setcpm(128/4)
+clap: silence
+hat: silence
+arp: silence
+bass: silence
+fx: s("sd*<4 8 16 32>").bank("RolandTR909").speed("<1 1.1 1.25 1.5>").gain("<0.5 0.6 0.8 1>")
+shape(4, H("<0.2 0.35 0.5 0.7>"), 0.02).repeat(3, 3).color(1, 1, 1).invert(H("[0 1]*<4 8 16 32>")).out()
+
+// ---
+// ## Big room: the drop
+// And then almost nothing: a **huge kick** and **one stabbing lead**, soaked in reverb.
+// The empty space is what makes it hit in a field of 50,000 people.
+fx: silence
+chords: silence
+kick: s("bd*4").bank("RolandTR909").shape(0.3).gain(1.05).duckorbit(2).duckdepth(0.9)
+lead: note("<[a4 ~ a4 c5 ~ a4 e5 ~] [f4 ~ f4 a4 ~ f4 c5 ~]>").s("supersaw").decay(0.12).sustain(0).lpf(3500).room(0.7).roomsize(6).gain(0.6).orbit(2)
+osc(30, 0.2, 1).kaleid(12).color(1, 0.2, 0.6).scale(H("[1.4 1]*4")).modulate(noise(3), 0.2).out()
+
+// ---
+// ## Techno (about 125–145 BPM)
+// Detroit, then Berlin. **Faster and darker**, and almost no chords: the interest is in
+// **rhythm and texture**. A dry kick, a reverb "rumble" ghosting it, and busy sixteenth hats.
+setcpm(132/4)
+lead: silence
+kick: s("bd*4").bank("RolandTR909").gain(1.05)
+rumble: s("bd*4").bank("RolandTR909").late(0.125).lpf(150).room(0.9).roomsize(4).gain(0.5)
+hat: s("hh*16").bank("RolandTR909").gain("[0.25 0.4 0.3 0.5]*4")
+osc(60, 0.1, 0).thresh(0.5).kaleid(2).scrollY(0, 0.1).mult(shape(4, 0.9, 0.01).repeat(8, 4)).brightness(H("[0.3 0]*4")).out()
+
+// ---
+// ## Techno: the hypnotic loop
+// One note, repeated in a **3-against-8** rhythm, with its filter slowly sweeping. Nothing
+// resolves; it just keeps turning. Add a clap and an off-beat ride, and that's a techno groove.
+stab: note("a1").struct("x(3,8,2)").s("sawtooth").lpf(sine.range(300, 2500).slow(8)).lpq(12).decay(0.1).sustain(0).gain(0.7)
+clap: s("~ cp ~ cp").bank("RolandTR909").room(0.3).gain(0.65)
+ride: s("[~ rd]*4").bank("RolandTR909").gain(0.35)
+
+// ---
+// ## Your turn
+// Six genres, a handful of named layers each. Switch to **code** view and try a change:
+// `kick: silence` for a breakdown, a new `setcpm(...)`, or bring back the flute with `lead:`.
+// Ctrl+Enter plays the slide your cursor is in.
