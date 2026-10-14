@@ -38,14 +38,14 @@ chords: note("<[a3,c4,e4,g4] [f3,a3,c4,e4] [c4,e4,g4,b4] [g3,b3,d4,f4]>").struct
 // **Roland TB-303**: one buzzy saw wave running sixteenths through a **resonant filter**.
 chords: silence
 bass: silence
-acid: note("a1 a1 a2 ~ a1 c2 a1 ~ a1 a1 g2 ~ a1 e2 a1 g1").s("sawtooth").lpf(450).lpq(18).ftype("ladder").decay(0.12).sustain(0.15).gain(0.6)
+acid: note("a1 a1 a2 ~ a1 c2 a1 ~ a1 a1 g2 ~ a1 e2 a1 g1").s("sawtooth").lpf(450).lpq(18).ftype("ladder").decay(0.12).sustain(0.15).gain(1.9)
 osc(30, 0.15, 0).thresh(0.5).color(1, 1, 0.1).modulate(osc(6, 0.1).rotate(1.57), 0.4).kaleid(3).scale(H("[1.1 1]*4")).out()
 
 // ---
 // ## Acid house: the squelch
 // Now **sweep the filter** open and closed over 8 bars and push the resonance. Some notes get
 // an **accent** (louder, brighter). That rubbery "wow" is the whole genre.
-acid: note("a1 a1 a2 ~ a1 c2 a1 ~ a1 a1 g2 ~ a1 e2 a1 g1").s("sawtooth").lpf(sine.range(300, 2800).slow(8)).lpq(22).ftype("ladder").decay(0.12).sustain(0.15).gain("[0.55 0.55 0.8 0.55]*4")
+acid: note("a1 a1 a2 ~ a1 c2 a1 ~ a1 a1 g2 ~ a1 e2 a1 g1").s("sawtooth").lpf(sine.range(300, 2800).slow(8)).lpq(22).ftype("ladder").decay(0.12).sustain(0.15).gain("[1.6 1.6 2.4 1.6]*4")
 
 // ---
 // ## Deep house (about 118–124 BPM)
@@ -76,8 +76,8 @@ voronoi(6, 0.3, 0.4).color(0.2, 0.95, 0.85).add(osc(2, 0.05, 0.8).color(1, 0.8, 
 // ---
 // ## Tropical house: marimba and steel drums
 // The signature sound: **wooden and metallic plucks** (marimba, steel drums) bouncing over the chords.
-pluck: n("[0 ~ 4 2] [~ 4 ~ 7]".add("<0 4 5 3>")).scale("C4:major").s("gm_marimba").gain(0.75)
-perc: n("[~ 7] [~ 9] [~ 7] [11 ~]".add("<0 4 5 3>")).scale("C5:major").s("gm_steel_drums").gain(0.35)
+pluck: n("[0 ~ 4 2] [~ 4 ~ 7]".add("<0 4 5 3>")).scale("C4:major").s("gm_marimba").gain(1.2)
+perc: n("[~ 7] [~ 9] [~ 7] [11 ~]".add("<0 4 5 3>")).scale("C5:major").s("gm_steel_drums").gain(0.9)
 
 // ---
 // ## Tropical house: the flute hook
@@ -122,7 +122,7 @@ osc(60, 0.02, 0).thresh(0.9).kaleid(16).color(0.3, 0.8, 1).rotate(0, 0.08).brigh
 // ## Trance: the anthem
 // The part people wait for: a **big, simple melody** on a bright lead, with long delay and reverb
 // so every note hangs in the air. The arpeggio keeps running underneath.
-lead: n("<[7 ~ 7 9 ~ 7 4 ~] [5 ~ 5 7 ~ 5 2 ~] [4 ~ 4 6 ~ 7 9 ~] [6 ~ 4 2 ~ 1 2 ~]>").scale("A4:minor").s("supersaw").decay(0.2).sustain(0.3).delay(0.4).room(0.5).gain(0.35).orbit(3)
+lead: n("<[7 ~ 7 9 ~ 7 4 ~] [5 ~ 5 7 ~ 5 2 ~] [4 ~ 4 6 ~ 7 9 ~] [6 ~ 4 2 ~ 1 2 ~]>").scale("A4:minor").s("supersaw").decay(0.2).sustain(0.3).delay(0.4).room(0.5).gain(1).orbit(3)
 
 // ---
 // ## Big room: the build (about 126–132 BPM)
@@ -143,8 +143,8 @@ shape(4, H("<0.2 0.35 0.5 0.7>"), 0.02).repeat(3, 3).rotate(0, H("<0.05 0.15 0.4
 // The empty space is what makes it hit in a field of 50,000 people.
 fx: silence
 chords: silence
-kick: s("bd*4").bank("RolandTR909").shape(0.3).gain(0.8).duckorbit(2).duckdepth(0.9)
-lead: note("<[a4 ~ a4 c5 ~ a4 e5 ~] [f4 ~ f4 a4 ~ f4 c5 ~]>").s("supersaw").decay(0.12).sustain(0).lpf(3500).room(0.7).roomsize(6).gain(0.6).orbit(2)
+kick: s("bd*4").bank("RolandTR909").shape(0.3).gain(0.8).duckorbit(2).duckdepth(0.6)
+lead: note("<[a4 ~ a4 c5 ~ a4 e5 ~] [f4 ~ f4 a4 ~ f4 c5 ~]>").s("supersaw").decay(0.12).sustain(0).lpf(3500).room(0.7).roomsize(6).gain(1.5).orbit(2)
 osc(30, 0.2, 1).kaleid(12).color(1, 0.2, 0.6).scale(H("[1.4 1]*4")).modulate(noise(3), 0.2).out()
 
 // ---
@@ -202,7 +202,7 @@ noise(3, 0.1).thresh(0.45).color(0.1, 1, 0.4).modulate(osc(4, 0.1), H("[0.05 0.4
 // ## Dubstep: the wobble
 // The bass becomes a saw wave whose filter is swept by an **LFO** at different speeds each bar:
 // 4 wobbles, then 2, then 8, then 3. That "wub" is a filter opening and closing.
-bass: note("<a1 a1 f1 g1>").struct("x*32").legato(1).s("sawtooth").lpf(sine.range(150, 2200).fast("<4 2 8 3>")).lpq(12).ftype("ladder").gain(0.75)
+bass: note("<a1 a1 f1 g1>").struct("x*32").legato(1).s("sawtooth").lpf(sine.range(150, 2200).fast("<4 2 8 3>")).lpq(12).ftype("ladder").gain(1.6)
 
 // ---
 // ## Drum & bass (about 170–180 BPM)
@@ -220,7 +220,7 @@ osc(40, 0.3, 1.2).kaleid(3).color(0.2, 0.6, 1).modulateScale(osc(8, 0.2), 0.5).s
 // ## Drum & bass: Reese bass and the chop
 // Under the break, a slow **Reese bass**: detuned saws beating against each other. On top, the break
 // gets **chopped**: cut into 16 slices and rearranged, with doubled hits pitched up.
-bass: note("<a1 a1 f1 g1>").s("supersaw").unison(2).detune(0.25).lpf(350).legato(1).gain(0.9)
+bass: note("<a1 a1 f1 g1>").s("supersaw").unison(2).detune(0.25).lpf(350).legato(1).gain(1.8)
 breaks: s("brk").splice(16, "<[0 1 2 3 4 5 6 7] [8 9 10 11 12 [12 12] 14 [15 3]]>").gain(1.7)
 
 // ---
